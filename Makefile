@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-g
-LDFLAGS=
+LDFLAGS=-lpthread
 SOURCE= src/calendar_main.c
 OBJECT= src/calendar_main.o
 TARGET = calendar
