@@ -5,5 +5,7 @@
 
 void user_input_thread_init(void);
 
+void parse_file(void);
+
 #endif
 

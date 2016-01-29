@@ -18,6 +18,7 @@ static void calendar_app_deinit(void)
 
 static void calendar_app_init(void)
 {
+  parse_file();
   calendar_manager_thread_init();
   user_input_thread_init();
 }

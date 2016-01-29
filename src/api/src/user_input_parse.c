@@ -129,7 +129,48 @@ void user_input_thread_init(void)
   }
 }
 
+void parse_file(void)
+{
+  file_hdl fd;
+  int32_t size;
 
+  if(FAILURE == FsOpen(&fd, "calendar.txt", "r+"))
+  {
+    calendar_quit();
+  }
+
+  size =  FsGetSize(fd);
+
+  printf("file size is %d\n", size);
+
+  char line[128];
+
+  char buffer[size];
+  memset(buffer, '\0', size);
+
+  if(FAILURE == FsRead(fd, buffer, size))
+  {
+      calendar_quit();
+  }
+
+  char *ptr = buffer;
+  char *pline = line;
+  int i = 0;
+
+  for(i = 0; i < size; i++)
+  {
+     if(*ptr == '\n')
+     {
+        *pline = '\0';
+        pline = line;
+        printf("%s\n", line);
+     }
+
+     *pline++ = *ptr++;
+  }
+
+  FsClose(fd);
+}
 
 
 

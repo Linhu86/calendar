@@ -86,6 +86,12 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode);
 
 void FsClose(file_hdl file_hdl_ptr);
 
+Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, int32_t size);
+
+int32_t FsGetSize(file_hdl file_hdl_ptr);
+
+void FsClose(file_hdl file_hdl_ptr);
+
 #endif
 
 

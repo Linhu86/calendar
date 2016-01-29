@@ -167,7 +167,7 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode)
   Bool ret;
 
   fd = fopen(path, mode);
-  if(NULL != fd)
+  if(NULL == fd)
   {
     CALENDER_DEBUG("Failed to open file, error: %s.", strerror(errno));
     ret = FAILURE;
@@ -180,6 +180,32 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode)
 
   *file_hdl_ptr = fd;
   return ret;
+}
+
+Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, int32_t size)
+{
+  Bool ret;
+
+  if(size != fread(buffer,1,size,file_hdl_ptr))
+  {
+    CALENDER_DEBUG("Filed to read file, error %s", strerror(errno));
+    ret = FAILURE;
+  }
+  else
+  {
+    CALENDER_DEBUG("Succeed to read file");
+    ret = SUCCESS;
+  }
+  return ret;
+}
+
+int32_t FsGetSize(file_hdl file_hdl_ptr)
+{
+  int32_t size = 0;
+  fseek(file_hdl_ptr, 0L, SEEK_END);
+  size = ftell(file_hdl_ptr);
+  rewind(file_hdl_ptr);
+  return size;
 }
 
 void FsClose(file_hdl file_hdl_ptr)
