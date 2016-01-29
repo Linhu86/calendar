@@ -4,24 +4,14 @@
 #include <mqueue.h>
 #include <errno.h>
 
-#define QUEUE_NAME  "/calendar_msgq"
-#define MAX_MSG_QUEUE_SIZE    1024
-#define MSG_STOP    "exit"
-
-#define MAXBUFFERSIZE 1024
-
-#ifdef DEBUG_INFO_ON
-#define CALENDER_DEBUG printf
-#else
-#define CALENDER_DEBUG
-#endif
+#include "types.h"
+#include "calendar_main.h"
 
 #define UNUSED(x) { x = NULL;}
 
 static int calander_exit = 0;
 
-static char input_buffer[MAXBUFFERSIZE] = {'\0'}; 
-
+static char input_buffer[MAX_BUFFER_SIZE] = {'\0'};
 
 static void clear_buffer(void)
 {
@@ -62,12 +52,12 @@ static int dispatch_msg_to_calendar_mgr(char *msg)
 
    if(-1 == bytes_write)
    {
-       CALENDER_DEBUG("Failed to dispatch message %s to calendar manager., error: %s.\n", strerror(errno));
+       CALENDER_DEBUG("Failed to dispatch message %s to calendar manager., error: %s.\n", buffer, strerror(errno));
        return -1;
    }
    else
    {
-      CALENDER_DEBUG("Succeed to dispatch message %s to calendar manager.\n");
+      CALENDER_DEBUG("Succeed to dispatch message to calendar manager.\n");
    }
 
 }
@@ -83,10 +73,10 @@ static void *user_input_process_thread_entry(void *param)
     
   while(!calander_exit)
   {
-    printf("\nPlease enter a line of text (Max %d characters)\n", MAXBUFFERSIZE);
+    printf("\nPlease enter a line of text (Max %d characters)\n", MAX_BUFFER_SIZE);
     char_count = 0;
     
-    while(ch != '\n' && char_count <= MAXBUFFERSIZE)
+    while(ch != '\n' && char_count <= MAX_BUFFER_SIZE)
     {
       ch = getchar();
       input_buffer[char_count ++] = ch;
