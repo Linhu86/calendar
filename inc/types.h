@@ -1,10 +1,24 @@
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
-enum {
-    FALSE = 0,
-    TRUE = 1
-};
+#include <stdio.h>
+
+typedef enum {
+    FAILURE = 0,
+    SUCCESS = 1
+} BOOLEAN;
+
+#define UNUSED(x) { x = 0;}
+
+#ifdef DEBUG_INFO_ON
+#define CALENDER_DEBUG(fmt, ...) { \
+  printf("[TimeStamp: %d] [Pid:%lu] [Func:%s]: " #fmt "\n", (int)time(NULL), pthread_self(), __func__, ##__VA_ARGS__); \
+}
+#else
+#define CALENDER_DEBUG
+#endif
+
+
 
 #ifdef OS_LINUX
 typedef int Bool;

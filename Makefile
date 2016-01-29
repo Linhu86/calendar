@@ -9,7 +9,7 @@ TARGET=calendar
 CC=gcc
 CFLAGS=
 LDFLAGS=
-SOURCE=
+SOURCES=
 OBJECT=
 INC=
 
@@ -22,23 +22,23 @@ DEBUG_ON=DEBUG_INFO_ON
 #flag to control the os platform.
 OS_INFO=OS_LINUX
 
+#flag to control the os platform wrapper.
+OS_WRAPPER=linux
+
 #Add source file.
-SOURCE += src/calendar_main.c
+SOURCES += src/calendar_main.c \
+		  src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c
 
 #Include header file
-INC += -Iinc
-
-#Convert obj file name from source file name.
-OBJECT += $(SOURCE:.cpp=.o)
+INC += -Iinc \
+	   -Isrc/api/wrapper
 
 $(INFO $(OBJECT))
 
 #Add CFLAGS
 CFLAGS += $(GDB_DEBUG_ON) \
 		  -D$(DEBUG_ON)   \
-		  -D$(OS_INFO)    \
-
-CFLAGS += -Iinc
+		  -D$(OS_INFO)
 
 #Add LDFLAGS
 LDFLAGS += -lpthread -lrt
@@ -46,13 +46,8 @@ LDFLAGS += -lpthread -lrt
 #build
 all:$(TARGET)
 
-#Compile source file and create object file.
-$(OBJECT):$(SOURCE)
-	$(CC) $(CFLAGS) -o $@ -c $< 
-
-#Link obj file to binary file.
-$(TARGET):$(OBJECT)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
+$(TARGET): $(SOURCES)
+	$(CC) $(INC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
 #clean workspace
 clean:
