@@ -2,6 +2,8 @@
 #define __TYPES_H__
 
 #include <stdio.h>
+#include <pthread.h>
+#include <mqueue.h>
 
 typedef enum {
     FAILURE = 0,
@@ -18,34 +20,30 @@ typedef enum {
 #define CALENDER_DEBUG
 #endif
 
-
-
 #ifdef OS_LINUX
 typedef int Bool;
-typedef char char8_t;
-typedef signed int int32_t;
+typedef int int32_t;
 typedef unsigned int uint32_t;
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef signed short int16_t;
+typedef char char8_t;
+typedef unsigned char uchar8_t;
+typedef short int16_t;
 typedef unsigned short uint16_t;
 typedef float float32_t;
 typedef double double64_t;
-
 typedef pthread_t thread_hdl;
 typedef mqd_t mqd_hdl;
-
 #else
 typedef int Bool;
+typedef int int32_t;
+typedef unsigned int uint32_t;
 typedef char char8_t;
-typedef signed int int_t;
-typedef unsigned int uint_t;
-typedef signed char int8_t;
-typedef unsigned char uint8_t;
-typedef signed short int16_t;
+typedef unsigned char uchar8_t;
+typedef short int16_t;
 typedef unsigned short uint16_t;
 typedef float float32_t;
 typedef double double64_t;
+typedef pthread_t thread_hdl;
+typedef mqd_t mqd_hdl;
 #endif
 
 
