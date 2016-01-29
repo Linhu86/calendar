@@ -28,6 +28,13 @@ static void *calendar_manager_thread_entry(void *param)
     }
 
     CALENDER_DEBUG("Success to receive message : [ %s ] from user input process thread.", buffer);
+
+    if(FAILURE == QueueSend(&mq, "Calendar Manager has received message...processing", MODE_BLOCK))
+    {
+      calendar_quit();
+    }
+
+    CALENDER_DEBUG("Success to Answer message to user input process thread.");
   }
 
   QueueDelete(&mq, QUEUE_NAME);

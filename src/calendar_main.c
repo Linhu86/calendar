@@ -8,6 +8,8 @@
 #include "common_include.h"
 #include "types.h"
 
+/* To implement signal error handler. */
+
 int32_t calendar_exit = CALENDAR_RUNNING;
 
 static void calendar_app_deinit(void)

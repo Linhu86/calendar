@@ -8,7 +8,6 @@
 #include "calendar_manager.h"
 #include "rtos.h"
 
-
 extern int32_t calendar_exit;
 
 static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
@@ -27,27 +26,39 @@ static void dispatch_msg_to_calendar_mgr(char8_t *msg)
 {
   mqd_t mq;
   ssize_t bytes_write;
-  char8_t buffer[MAX_MSG_QUEUE_SIZE];
+  char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
+  char8_t recv_buffer[MAX_MSG_QUEUE_SIZE];
 
-  memset(buffer, '\0', MAX_MSG_QUEUE_SIZE);
+  memset(send_buffer, '\0', MAX_MSG_QUEUE_SIZE);
+  memset(recv_buffer, '\0', MAX_MSG_QUEUE_SIZE);
 
-  strncpy(buffer, msg, strlen(msg));
+  strncpy(send_buffer, msg, strlen(msg));
 
   if(FAILURE == QueueCreate(&mq, QUEUE_NAME, MAX_MSG_QUEUE_SIZE, MAX_MSG_QUEUE_NUM))
   {
     calendar_quit();
   }
 
-  if(FAILURE == QueueSend(&mq, buffer, MODE_BLOCK))
+  if(FAILURE == QueueSend(&mq, send_buffer, MODE_BLOCK))
   {
-    CALENDER_DEBUG("Failed to dispatch message %s to calendar manager., error: %s.", buffer, strerror(errno));
+    CALENDER_DEBUG("Failed to dispatch message %s to calendar manager, error: %s.", send_buffer, strerror(errno));
     calendar_quit();
   }
   else
   {
-    CALENDER_DEBUG("Succeed to dispatch message %s to calendar manager.", buffer);
+    CALENDER_DEBUG("Succeed to dispatch message %s to calendar manager.", send_buffer);
   }
+
+  /* Block until receiving message from calendar manager or error occurs. */
+  if(FAILURE == QueueReceive(&mq, recv_buffer, MODE_BLOCK))
+  {
+    CALENDER_DEBUG("Failed to receive answer from calendar manager, error: %s.", strerror(errno));
+  }
+  CALENDER_DEBUG("Succeed to receive message [ %s ] from calendar manager.", recv_buffer);
+
+  QueueDelete(&mq, QUEUE_NAME);
 }
+
 
 static void *user_input_process_thread_entry(void *param)
 {
