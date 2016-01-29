@@ -4,8 +4,7 @@
 #include "types.h"
 #include "rtos.h"
 
-#define QUEUE_NAME  "/calendar_msgq"
-#define MAX_MSG_QUEUE_SIZE    1024
+#define QUEUE_NAME "/calendar_msgq"
 
 #define MAX_BUFFER_SIZE 1024
 
