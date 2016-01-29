@@ -1,6 +1,7 @@
 /* rtos wrapper for linux OS. */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
 #include <time.h>
@@ -11,7 +12,6 @@
 
 /* Now ThreadCreate API only support to create a thread, but leave the interface to be extended other functionalities
 in the future, e.g thread name, thread stack size, thread priority management. */
-
 Bool ThreadCreate(thread_hdl* thread,   /* OS thread reference */
                   const char8_t* name,  /* thread name */
                   int32_t priority,     /* thread priority */
@@ -43,7 +43,6 @@ Bool ThreadCreate(thread_hdl* thread,   /* OS thread reference */
 
 
 /* Thread detach API*/
-
 Bool ThreadDetach(thread_hdl* thread)
 {
   Bool ret = FAILURE;
@@ -113,7 +112,6 @@ void QueueDelete(mqd_hdl* queue, const char8_t *name)
     @param  message     Message to be sent to the queue
     @param  suspend     Suspend mode. Specifies whether or not to suspend the calling task if the queue is full.
     @return             Result value */
-
 Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
 {
   Bool ret;
@@ -143,31 +141,49 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
     @return             Result value */
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
 {
-    Bool ret;
-    ssize_t bytes_read = 0;
-    UNUSED(suspend);
+  Bool ret;
+  ssize_t bytes_read = 0;
+  UNUSED(suspend);
 
-    bytes_read = mq_receive(*queue, message, MAX_MSG_QUEUE_SIZE, NULL);
+  bytes_read = mq_receive(*queue, message, MAX_MSG_QUEUE_SIZE, NULL);
 
-    if(-1 == bytes_read)
-    {
-      CALENDER_DEBUG("Failed to receive data, error: %s.", strerror(errno));
-      ret = FAILURE;
-    }
-    else
-    {
-      CALENDER_DEBUG("Success to receive data");
-      ret = SUCCESS;
-    }
+  if(-1 == bytes_read)
+  {
+    CALENDER_DEBUG("Failed to receive data, error: %s.", strerror(errno));
+    ret = FAILURE;
+  }
+  else
+  {
+    CALENDER_DEBUG("Success to receive data");
+    ret = SUCCESS;
+  }
 
-    return ret;
+  return ret;
 }
 
+Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode)
+{
+  FILE *fd;
+  Bool ret;
 
+  fd = fopen(path, mode);
+  if(NULL != fd)
+  {
+    CALENDER_DEBUG("Failed to open file, error: %s.", strerror(errno));
+    ret = FAILURE;
+  }
+  else
+  {
+    CALENDER_DEBUG("Success to open file");
+    ret = SUCCESS;
+  }
 
+  *file_hdl_ptr = fd;
+  return ret;
+}
 
-
-
-
-
+void FsClose(file_hdl file_hdl_ptr)
+{
+  fclose(file_hdl_ptr);
+}
 

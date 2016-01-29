@@ -82,6 +82,9 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend);
 
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend);
 
+Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode);
+
+void FsClose(file_hdl file_hdl_ptr);
 
 #endif
 

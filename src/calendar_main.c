@@ -24,7 +24,6 @@ static void calendar_app_init(void)
 
 int main()
 {
-
   calendar_app_init();
 
   while(!calendar_exit)

@@ -32,6 +32,7 @@ typedef float float32_t;
 typedef double double64_t;
 typedef pthread_t thread_hdl;
 typedef mqd_t mqd_hdl;
+typedef FILE* file_hdl;
 #else
 typedef int Bool;
 typedef int int32_t;

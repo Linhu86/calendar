@@ -98,7 +98,7 @@ static void *user_input_process_thread_entry(void *param)
       }
       else
       {
-        printf("Error: Invalide choice.\n");
+        printf("Error: Not a valid choice.\n");
       }
       clear_buffer();
     }
