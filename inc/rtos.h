@@ -39,12 +39,12 @@ typedef void *(*ThreadFn)(void*);
 */
 
 Bool ThreadCreate(thread_hdl* thread,
-                  const char8_t* name,
-                  int32_t priority,
-                  void* stack,
-                  int32_t stack_size,
-                  ThreadFn thread_fn,
-                  void* thread_param);
+                            const char8_t* name,
+                            uint32_t priority,
+                            void* stack,
+                            uint32_t stack_size,
+                            ThreadFn thread_fn,
+                            void* thread_param);
 
 
 /* Detach thread from main thread. */
@@ -61,9 +61,9 @@ Bool ThreadDetach(thread_hdl* thread);
 }
 */
 Bool QueueCreate( mqd_hdl*         queue,
-                  const char8_t*   name,
-                  int32_t          msg_size,
-                  int32_t          msg_count );
+                            const char8_t*  name,
+                            uint32_t            msg_size,
+                            uint32_t            msg_count );
 
 /** Deletes a queue.
     @param  queue       Pointer to the queue.
@@ -89,13 +89,13 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend);
 
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend);
 
-Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, int32_t mode);
+Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode);
 
 void FsClose(file_hdl file_hdl_ptr);
 
-Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, int32_t size);
+Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, uint32_t size);
 
-int32_t FsGetSize(file_hdl file_hdl_ptr);
+uint32_t FsGetSize(file_hdl file_hdl_ptr);
 
 void FsClose(file_hdl file_hdl_ptr);
 

@@ -14,9 +14,9 @@
 in the future, e.g thread name, thread stack size, thread priority management. */
 Bool ThreadCreate(thread_hdl* thread,   /* OS thread reference */
                   const char8_t* name,  /* thread name */
-                  int32_t priority,     /* thread priority */
+                  uint32_t priority,     /* thread priority */
                   void* stack,          /* pointer to start of task stack area */
-                  int32_t stack_size,   /* thread size */
+                  uint32_t stack_size,   /* thread size */
                   ThreadFn thread_fn,   /* pointer to thread entry point */
                   void* thread_param)   /* thread argument pointer */
 {
@@ -24,6 +24,11 @@ Bool ThreadCreate(thread_hdl* thread,   /* OS thread reference */
   UNUSED(priority);
   UNUSED(stack);
   UNUSED(stack_size);
+
+  if(NULL == thread)
+  {
+    return FAILURE;
+  }
 
   Bool ret = FAILURE;
 
@@ -47,6 +52,11 @@ Bool ThreadDetach(thread_hdl* thread)
 {
   Bool ret = FAILURE;
 
+  if(NULL == thread)
+  {
+    return FAILURE;
+  }
+
   if(0 != pthread_detach(*thread))
   {
     CALENDER_DEBUG("Failed to detach thread %lu, error: %s.", pthread_self(), strerror(errno));
@@ -62,14 +72,19 @@ Bool ThreadDetach(thread_hdl* thread)
 }
 
 /** Message queue crate API.*/
-Bool QueueCreate( mqd_hdl*         queue,
-                  const char8_t*   name,
-                  int32_t          msg_size,
-                  int32_t          msg_count )
+Bool QueueCreate( mqd_hdl*          queue,
+                            const char8_t*   name,
+                            uint32_t             msg_size,
+                            uint32_t             msg_count )
 {
   Bool ret;
   mqd_t mq;
   struct mq_attr attr;
+
+  if(NULL == queue || NULL == name)
+  {
+     return FAILURE;
+  }
 
   /* initialize the queue attributes */
   attr.mq_flags = 0;
@@ -102,6 +117,11 @@ Bool QueueCreate( mqd_hdl*         queue,
     @return             Result value out of  */
 void QueueDelete(mqd_hdl* queue, const char8_t *name)
 {
+  if(NULL == queue || NULL == name)
+  {
+    return;
+  }
+
   mq_close(*queue);
   mq_unlink(name);
 }
@@ -117,6 +137,11 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
   Bool ret;
   ssize_t bytes_write = 0;
   UNUSED(suspend);
+
+  if(NULL == queue)
+  {
+     return FAILURE;
+  }
 
   bytes_write = mq_send(*queue, message, MAX_MSG_QUEUE_SIZE, 0);
 
@@ -145,6 +170,11 @@ Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
   ssize_t bytes_read = 0;
   UNUSED(suspend);
 
+  if(NULL == queue)
+  {
+     return FAILURE;
+  }
+
   bytes_read = mq_receive(*queue, message, MAX_MSG_QUEUE_SIZE, NULL);
 
   if(-1 == bytes_read)
@@ -161,11 +191,16 @@ Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
   return ret;
 }
 
-Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, int32_t mode)
+Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode)
 {
   FILE *fd;
   Bool ret;
   char *open_mode=NULL;
+
+  if(NULL == file_hdl_ptr || NULL == path)
+  {
+     return FAILURE;
+  }
 
   switch(mode){
     case OPEN_MODE_READ_ONLY:
@@ -201,7 +236,7 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, int32_t mode)
   return ret;
 }
 
-Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, int32_t size)
+Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, uint32_t size)
 {
   Bool ret;
 
@@ -218,9 +253,9 @@ Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, int32_t size)
   return ret;
 }
 
-int32_t FsGetSize(file_hdl file_hdl_ptr)
+uint32_t FsGetSize(file_hdl file_hdl_ptr)
 {
-  int32_t size = 0;
+  uint32_t size = 0;
   fseek(file_hdl_ptr, 0L, SEEK_END);
   size = ftell(file_hdl_ptr);
   rewind(file_hdl_ptr);

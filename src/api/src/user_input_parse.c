@@ -111,12 +111,12 @@ void user_input_thread_init(void)
   Bool ret;
 
   ret = ThreadCreate( &thread_id,
-                      THREAD_USER_INPUT_PROCESS_NAME,
-                      THREAD_DEFAULT_PRIORITY,
-                      NULL,
-                      THREAD_DEFAULT_STACK_SIZE,
-                      user_input_process_thread_entry,
-                      (void *)(NULL) );
+                                THREAD_USER_INPUT_PROCESS_NAME,
+                                THREAD_DEFAULT_PRIORITY,
+                                 NULL,
+                                THREAD_DEFAULT_STACK_SIZE,
+                                user_input_process_thread_entry,
+                                (void *)(NULL) );
 
   if(FAILURE == ret)
   {

@@ -46,12 +46,12 @@ void calendar_manager_thread_init(void)
   Bool ret;
 
   ret = ThreadCreate( &thread_id,
-                      THREAD_CALENDAR_MANAGER_NAME,
-                      THREAD_DEFAULT_PRIORITY,
-                      NULL,
-                      THREAD_DEFAULT_STACK_SIZE,
-                      calendar_manager_thread_entry,
-                      (void *)(NULL) );
+                                 THREAD_CALENDAR_MANAGER_NAME,
+                                 THREAD_DEFAULT_PRIORITY,
+                                  NULL,
+                                  THREAD_DEFAULT_STACK_SIZE,
+                                  calendar_manager_thread_entry,
+                                  (void *)(NULL) );
 
   if(FAILURE == ret)
   {
