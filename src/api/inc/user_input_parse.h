@@ -3,6 +3,8 @@
 
 #define THREAD_USER_INPUT_PROCESS_NAME "thread_user_input_proc"
 
+#define CALENDAR_FILE_NAME "calendar.txt"
+
 void user_input_thread_init(void);
 
 void parse_file(void);

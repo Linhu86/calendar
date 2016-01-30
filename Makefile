@@ -5,11 +5,13 @@
 #
 
 TARGET=calendar
+TEST_TARGET=unittest/testapp
 
 CC=gcc
 CFLAGS=
 LDFLAGS=
 SOURCES=
+TEST_SOURCES=
 OBJECT=
 INC=
 
@@ -27,34 +29,40 @@ OS_WRAPPER=linux
 
 #Add source file.
 SOURCES += src/calendar_main.c \
-		   src/api/src/user_input_parse.c \
-		   src/api/src/calendar_manager.c \
-		   src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c
+		       src/api/src/user_input_parse.c \
+		       src/api/src/calendar_manager.c \
+		       src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c \
+
+TEST_SOURCES += unittest/src/test.c \
+				   src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c \
 
 #Include header file
 INC += -Iinc \
-	   -Isrc/api/wrapper \
-	   -Isrc/api/inc
+	     -Isrc/api/wrapper \
+	     -Isrc/api/inc
 
 $(INFO $(OBJECT))
 
 #Add CFLAGS
 CFLAGS += $(GDB_DEBUG_ON) \
-		  -D$(DEBUG_ON)   \
-		  -D$(OS_INFO)
+		    -D$(DEBUG_ON)   \
+		    -D$(OS_INFO)
 
 #Add LDFLAGS
 LDFLAGS += -lpthread -lrt
 
 #build
-all:$(TARGET)
+all:$(TARGET) $(TEST_TARGET)
 
 $(TARGET): $(SOURCES)
 	$(CC) $(INC) $(CFLAGS) $(LDFLAGS) $^ -o $@
 
+$(TEST_TARGET): $(TEST_SOURCES)
+	$(CC) $(INC) $(CFLAGS) $(LDFLAGS) -lcunit $^ -o $@
+
 #clean workspace
 clean:
-	rm -rf src/*.o $(TARGET)
+	rm -rf src/*.o $(TARGET)  $(TEST_TARGET)
 
 
 

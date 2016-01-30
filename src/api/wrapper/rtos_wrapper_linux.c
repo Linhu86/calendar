@@ -161,12 +161,31 @@ Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
   return ret;
 }
 
-Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode)
+Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, int32_t mode)
 {
   FILE *fd;
   Bool ret;
+  char *open_mode=NULL;
 
-  fd = fopen(path, mode);
+  switch(mode){
+    case OPEN_MODE_READ_ONLY:
+      open_mode = "r";
+      break;
+
+    case OPEN_MODE_READ_WRITE:
+      open_mode = "w+";
+      break;
+
+    case OPEN_MODE_APPEND:
+      open_mode = "a+";
+      break;
+
+    default:
+      open_mode = "r";
+      break;
+  }
+
+  fd = fopen(path, open_mode);
   if(NULL == fd)
   {
     CALENDER_DEBUG("Failed to open file, error: %s.", strerror(errno));

@@ -134,7 +134,7 @@ void parse_file(void)
   file_hdl fd;
   int32_t size;
 
-  if(FAILURE == FsOpen(&fd, "calendar.txt", "r+"))
+  if(FAILURE == FsOpen(&fd, CALENDAR_FILE_NAME, OPEN_MODE_READ_ONLY))
   {
     calendar_quit();
   }

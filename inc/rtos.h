@@ -14,6 +14,13 @@ typedef enum{
     MODE_BLOCK = 1
 }BLOCK_MODE;
 
+typedef enum{
+  OPEN_MODE_READ_ONLY = 0,
+  OPEN_MODE_READ_WRITE = 1,
+  OPEN_MODE_APPEND = 2
+}OPEN_MODE;
+
+
 typedef void *(*ThreadFn)(void*);
 
 /** Creates a thread
@@ -82,7 +89,7 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend);
 
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend);
 
-Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, char *mode);
+Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, int32_t mode);
 
 void FsClose(file_hdl file_hdl_ptr);
 

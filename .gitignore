@@ -1,5 +1,5 @@
 *.o
 calender
 calendar.*
-
-
+Calendar.*
+*.txt
