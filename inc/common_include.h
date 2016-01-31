@@ -21,6 +21,14 @@ typedef enum{
     SUNDAY_IDX
 } day_idx;
 
+typedef enum{
+    WHOLE_DAY = 0,
+    MORNING_ONLY,
+    AFTERNOON_ONLY,
+    NIGHT_ONLY
+} day_range;
+
+
 #define EPSINON 0.00001
 #define FLOAT_COMP(a, b)  (((a-b >= - EPSINON) && (a-b <= EPSINON)) ? 1 : 0)
 

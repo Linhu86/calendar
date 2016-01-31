@@ -161,6 +161,11 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
 
   CALENDER_DEBUG("Get start time %.2f.", *start_time);
 
+  if(*(ptr_word + 3) != '-' && *(ptr_word + 4 )!= '-')
+  {
+    return SUCCESS;
+  }
+
   while(ptr_word != '\0')
   {
     if(*ptr_word == '-')
@@ -188,9 +193,9 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
         }
       }
 
-      if(*(ptr_word) != ':')
+      if(*ptr_word != ':')
       {
-        CALENDER_DEBUG("Error entry 2: no ':' append after time found.");
+        CALENDER_DEBUG("Error entry 2: no ':' append after found. %c", *ptr_word);
         return FAILURE;
       }
       else

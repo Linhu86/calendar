@@ -3,6 +3,7 @@
 #include <string.h>
 #include "calendar_database.h"
 #include "common_include.h"
+#include "rtos.h"
 
 /* calendar database
 
@@ -94,11 +95,8 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
   }
   else
   {
-    while(!ptr)
+    while(ptr->next)
     {
-      if(ptr->next)
-        ptr = ptr->next;
-
       if(new_event->start_time < ptr->start_time)
       {
         new_event->next = ptr;
@@ -109,10 +107,11 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
         break;
       }
       pos++;
+      ptr = ptr->next;
     }
   }
 
-  if(!ptr)
+  if(!ptr->next)
   {
      ptr->next = new_event;
      new_event->prev = ptr;
@@ -185,12 +184,47 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
 
 void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
 {
+  if(answer == NULL)
+    return;
+
+  char tmp[MAX_MSG_QUEUE_SIZE+1];
+
+  float32_t start_time;
+  float32_t stop_time;
+
+  if(WHOLE_DAY == range)
+  {
+    start_time = 0.00;
+    stop_time = 24.00;
+  }
+  else if(MORNING_ONLY == range)
+  {
+    start_time = 0.00;
+    stop_time = 11.59;
+  }
+  else if(AFTERNOON_ONLY == range)
+  {
+    start_time = 12.00;
+    stop_time = 17.59;
+  }
+  else if(NIGHT_ONLY == range)
+  {
+    start_time = 18.00;
+    stop_time = 24.00;
+  }
+
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
   while(NULL != ptr)
   {
-    snprintf(answer, strlen(answer) + strlen(ptr->event_name)+2, "%s %s", answer, ptr->event_name);
-    CALENDER_DEBUG("weekday %d append event [%s] into answer list.", weekday, ptr->event_name);
+    if(ptr->start_time >= start_time)
+    {
+      strncpy(tmp, answer, strlen(answer));
+      //snprintf(answer, strlen(tmp) + strlen(ptr->event_name)+4, "%s    %s", answer, ptr->event_name);
+      strncat(answer, ptr->event_name, strlen(ptr->event_name)+1);
+      strncat(answer, ",  ", 4);
+      CALENDER_DEBUG("weekday %d append event [%s] into answer list %s.", weekday, ptr->event_name, answer);
+    }
     ptr = ptr->next;
   } 
 }

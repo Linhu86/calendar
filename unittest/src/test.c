@@ -76,6 +76,7 @@ static void test_string_parse(void)
   /*check_line_format_test */
   CU_ASSERT(SUCCESS == check_line_format_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));
   CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("MONDAY  10:00-11:00 Pickup Child."));
+  CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("Monday 16:00 Pick kids up"));
   CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("Monday 10:00-11:00 Dentist."));
   CU_ASSERT(FAILURE  == check_line_format_test_wrapper(""));
 

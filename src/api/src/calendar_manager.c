@@ -28,17 +28,12 @@ typedef enum{
     RETURN_TYPE_TIME
 } return_type;
 
-typedef enum{
-    WHOLE_DAY = 0,
-    MORNING_ONLY,
-    AFTERNOON_ONLY
-} day_range;
 
 static char weekday_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
 
 static char motivation_pattern[3][10]  = {"what", "do", "want"};
 
-static char time_pattern[8][10] = {"when", "which", "which day", "moring", "afternoon", "night", "free", "available"};
+static char time_pattern[8][10] = {"when", "which", "which day", "free", "available"};
 
 int32_t calendar_exit = CALENDAR_RUNNING;
 
@@ -86,6 +81,31 @@ static uint32_t check_motivation_pattern(char8_t *message)
   return FAILURE;
 }
 
+static uint32_t check_daylight_pattern(char8_t *message)
+{
+  uint32_t daylight_range = WHOLE_DAY;
+
+  if(strstr(message, "morning") != NULL && strstr(message, "afternoon") == NULL && strstr(message, "night") == NULL)
+  {
+    daylight_range = MORNING_ONLY;
+  }
+  else if(strstr(message, "morning") == NULL && strstr(message, "afternoon") != NULL && strstr(message, "night") == NULL)
+  {
+    daylight_range = AFTERNOON_ONLY;
+  }
+  else if(strstr(message, "morning") == NULL && strstr(message, "afternoon") == NULL && strstr(message, "night") != NULL)
+  {
+    daylight_range = NIGHT_ONLY;
+  }
+  else
+  {
+    daylight_range = WHOLE_DAY;
+  }
+
+  CALENDER_DEBUG("daylight pattern is found as: %d", daylight_range);
+  return daylight_range;
+}
+
 static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday, int32_t range)
 {
    event_return_all_by_weekday(answer, weekday, range);
@@ -104,6 +124,8 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
   weekday_pattern_presents = check_weekday_pattern(message);
 
   motivation_pattern_presents = check_motivation_pattern(message);
+
+  daylight_range = check_daylight_pattern(message);
 
   if(weekday_pattern_presents != -1 && motivation_pattern_presents != 0)
   {
