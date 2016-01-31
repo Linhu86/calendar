@@ -40,7 +40,7 @@ static void test_string_parse(void)
   CU_ASSERT(MONDAY_IDX == is_weekday_test_wrapper("Monday"));
   CU_ASSERT(TUESDAY_IDX == is_weekday_test_wrapper("Tuesday"));
   CU_ASSERT(WEDNESDAY_IDX == is_weekday_test_wrapper("Wednesday"));
-  CU_ASSERT(THUESDAY_IDX == is_weekday_test_wrapper("Thuesday"));
+  CU_ASSERT(THUESDAY_IDX == is_weekday_test_wrapper("Thursday"));
   CU_ASSERT(FRIDAY_IDX == is_weekday_test_wrapper("Friday"));
   CU_ASSERT(SATURDAY_IDX == is_weekday_test_wrapper("Saturday"));
   CU_ASSERT(SUNDAY_IDX == is_weekday_test_wrapper("Sunday"));
@@ -49,22 +49,23 @@ static void test_string_parse(void)
 
 
   /*is_valid_time test */
-  uint32_t start_time = 0, stop_time = 0;
-  CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("8:00-13:00", &start_time, &stop_time));
-  CU_ASSERT(8 ==start_time);
-  CU_ASSERT(13 ==stop_time);
+  float32_t start_time = 0, stop_time = 0;
+  CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("8:30-13:30", &start_time, &stop_time));
+  printf("%.2f %.2f\n", start_time, stop_time);
+  CU_ASSERT(1 == FLOAT_COMP(8.30, start_time));
+  CU_ASSERT(1 == FLOAT_COMP(13.30, stop_time));
 
   start_time = 0;
   stop_time = 0;
   CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("00:00-9:00", &start_time, &stop_time));
-  CU_ASSERT(0 ==start_time);
-  CU_ASSERT(9 ==stop_time);
+  CU_ASSERT(1 == FLOAT_COMP(0.00, start_time));
+  CU_ASSERT(1 == FLOAT_COMP(9.00, stop_time));
 
   start_time = 0;
   stop_time = 0;
   CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("11:00-23:00", &start_time, &stop_time));
-  CU_ASSERT(11 ==start_time);
-  CU_ASSERT(23 ==stop_time);
+  CU_ASSERT(1==FLOAT_COMP(11.00, start_time));
+  CU_ASSERT(1==FLOAT_COMP(23.00, stop_time));
 
   start_time = 0;
   stop_time = 0;
@@ -75,7 +76,7 @@ static void test_string_parse(void)
   /*check_line_format_test */
   CU_ASSERT(SUCCESS == check_line_format_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));
   CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("MONDAY  10:00-11:00 Pickup Child."));
-  CU_ASSERT(FAILURE  == check_line_format_test_wrapper("MONDAY10:00-11:00 Pickup Child."));
+  CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("Monday 10:00-11:00 Dentist."));
   CU_ASSERT(FAILURE  == check_line_format_test_wrapper(""));
 
   CU_ASSERT(SUCCESS == line_parse_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));  

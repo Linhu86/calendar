@@ -21,6 +21,9 @@ typedef enum{
     SUNDAY_IDX
 } day_idx;
 
+#define EPSINON 0.00001
+#define FLOAT_COMP(a, b)  (((a-b >= - EPSINON) && (a-b <= EPSINON)) ? 1 : 0)
+
 
 typedef enum{
   CALENDAR_RUNNING = 0,
@@ -30,8 +33,8 @@ typedef enum{
 typedef struct event
 {
   char8_t event_name[EVENT_NAME_LEN];
-  uint32_t start_time;
-  uint32_t stop_time;
+  float32_t start_time;
+  float32_t stop_time;
   struct event *next;
   struct event *prev;
 } event_t;

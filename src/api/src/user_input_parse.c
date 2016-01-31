@@ -106,9 +106,10 @@ static void *user_input_process_thread_entry(void *param)
   }
 }
 
-static Bool is_valid_time(char8_t *word, IN OUT uint32_t *start_time, IN OUT uint32_t *stop_time)
+static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT float32_t *stop_time)
 {
   char8_t *ptr_word = word;
+  float32_t float_digit1 = 0, float_digit2 = 0;
   uint32_t i = 0;
 
   if(NULL == word  || NULL == start_time || NULL == stop_time)
@@ -133,23 +134,27 @@ static Bool is_valid_time(char8_t *word, IN OUT uint32_t *start_time, IN OUT uin
 
       if(i==0)
       {
-        *start_time = (uint32_t)(*ptr_word - '0');
+        *start_time = (float32_t)(*ptr_word - '0');
       }
       else
       {
-        *start_time = *start_time*10 + (uint32_t)(*ptr_word - '0');
+        *start_time = *start_time*10 + (float32_t)(*ptr_word - '0');
       }
       ptr_word++;
     }
   }
 
-  if(*(ptr_word)!= ':')
+  if(*ptr_word!= ':')
   {
     CALENDER_DEBUG("Error entry 1: no ':' append after time found.");
     return FAILURE;
   }
 
-  CALENDER_DEBUG("Get start time %d.", *start_time);
+  float_digit1 = (float)(*(ptr_word+1)-'0')/10;
+  float_digit2 = (float)(*(ptr_word+2)-'0')/100;
+  *start_time = *start_time + float_digit1  + float_digit2;
+
+  CALENDER_DEBUG("Get start time %.2f.", *start_time);
 
   while(ptr_word != '\0')
   {
@@ -177,23 +182,27 @@ static Bool is_valid_time(char8_t *word, IN OUT uint32_t *start_time, IN OUT uin
           ptr_word++;
         }
       }
-      
-      CALENDER_DEBUG("Get stop time %d.", *stop_time);
-      
+
       if(*(ptr_word) != ':')
       {
         CALENDER_DEBUG("Error entry 2: no ':' append after time found.");
         return FAILURE;
       }
       else
-         return SUCCESS;
+      {
+        float_digit1 = (float)(*(ptr_word+1)-'0')/10;
+        float_digit2 = (float)(*(ptr_word+2)-'0')/100;
+        *stop_time = *stop_time + float_digit1 + float_digit2;
+        CALENDER_DEBUG("Get stop time %.2f.", *stop_time);
+        return SUCCESS;
+      }
     }
     ptr_word++;
   }
   return SUCCESS;
 }
 
-inline Bool is_valid_time_test_wrapper(char8_t *word, uint32_t *start_time, uint32_t *stop_time)
+inline Bool is_valid_time_test_wrapper(char8_t *word, float32_t *start_time, float32_t *stop_time)
 {
   return is_valid_time(word, start_time, stop_time);
 }
@@ -220,7 +229,7 @@ static uint32_t is_weekday(char *day)
   {
     ret = WEDNESDAY_IDX;
   }
-  else if(strcmp(day, "Thuesday") == 0 || strcmp(day, "thuesday") == 0 || strcmp(day, "THUESDAY") == 0)
+  else if(strcmp(day, "Thursday") == 0 || strcmp(day, "thursday") == 0 || strcmp(day, "THURSDAY") == 0)
   {
     ret = THUESDAY_IDX;
   }
@@ -267,7 +276,7 @@ static Bool check_line_format(char8_t *line)
     ptr++;
   }
 
-  if(space_num <=2)
+  if(space_num < 2)
   {
     return FAILURE;
   }
@@ -287,8 +296,8 @@ static Bool line_parse(IN char8_t *line)
    char8_t *ptr_word = word;
    uint32_t space_num = 0;
    uint32_t weekday;
-   uint32_t start_time = 0;
-   uint32_t stop_time = 0;
+   float32_t start_time = 0;
+   float32_t stop_time = 0;
    
    if(NULL == line)
    {
@@ -309,6 +318,9 @@ static Bool line_parse(IN char8_t *line)
    }
 
    ptr_line = line;
+
+   while(*ptr_line == ' ' || *ptr_line == '\n')
+    ptr_line++;
 
    while(*ptr_line!='\0')
    {
@@ -343,7 +355,7 @@ static Bool line_parse(IN char8_t *line)
 
    *ptr_word = '\0';
 
-    CALENDER_DEBUG("Add a new event to database: database[%d]: start_time: %d  stop_time: %d event: %s ", weekday, start_time, stop_time, word);
+    CALENDER_DEBUG("Add a new event to database: database[%d]: start_time: %.2f  stop_time: %.2f event: %s ", weekday, start_time, stop_time, word);
 
     if(FAILURE == calendar_data_base_event_add(weekday, start_time, stop_time, word))
     {
@@ -420,6 +432,10 @@ void parse_file(void)
         *pline = '\0';
         pline = line;
         printf("%s\n", line);
+        if(FAILURE == line_parse(line))
+        {
+           CALENDER_DEBUG("Failed to parse line [%s].", line);
+        }
      }
 
      *pline++ = *ptr++;
