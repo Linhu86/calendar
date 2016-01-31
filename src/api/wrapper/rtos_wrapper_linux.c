@@ -184,7 +184,7 @@ Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
   }
   else
   {
-    CALENDER_DEBUG("Success to receive data");
+    CALENDER_DEBUG("Success to receive data.");
     ret = SUCCESS;
   }
 

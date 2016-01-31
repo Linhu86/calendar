@@ -48,9 +48,9 @@ INC += -Iinc \
 $(INFO $(OBJECT))
 
 #Add CFLAGS
-CFLAGS += $(GDB_DEBUG_ON) \
-		    -D$(DEBUG_ON)   \
-		    -D$(OS_INFO)
+CFLAGS += $(GDB_DEBUG_ON)
+#CFLAGS +=-D$(DEBUG_ON)
+CFLAGS +=-D$(OS_INFO)
 
 #Add LDFLAGS
 LDFLAGS += -lpthread -lrt

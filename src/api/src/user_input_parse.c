@@ -57,7 +57,12 @@ static void dispatch_msg_to_calendar_mgr(char8_t *msg)
   }
   CALENDER_DEBUG("Succeed to receive message [ %s ] from calendar manager.", recv_buffer);
 
-  QueueDelete(&mq, QUEUE_NAME);
+  if(recv_buffer == NULL || strcmp(recv_buffer, "") == 0)
+    strncpy(recv_buffer, "No answer found.", 17);
+
+  printf("\nResult:  %s\n\n\n", recv_buffer);
+
+ // QueueDelete(&mq, QUEUE_NAME);
 }
 
 
@@ -409,7 +414,7 @@ void parse_file(void)
 
   size =  FsGetSize(fd);
 
-  printf("file size is %d\n", size);
+  CALENDER_DEBUG("file size is %d\n", size);
 
   char line[256];
 
@@ -431,7 +436,7 @@ void parse_file(void)
      {
         *pline = '\0';
         pline = line;
-        printf("%s\n", line);
+        CALENDER_DEBUG("%s\n", line);
         if(FAILURE == line_parse(line))
         {
            CALENDER_DEBUG("Failed to parse line [%s].", line);

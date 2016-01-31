@@ -183,5 +183,17 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
   return SUCCESS;
 }
 
+void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
+{
+  event_t *ptr = calendar_database[weekday].day_info_event.next;
+
+  while(NULL != ptr)
+  {
+    snprintf(answer, strlen(answer) + strlen(ptr->event_name)+2, "%s %s", answer, ptr->event_name);
+    CALENDER_DEBUG("weekday %d append event [%s] into answer list.", weekday, ptr->event_name);
+    ptr = ptr->next;
+  } 
+}
+
 
 
