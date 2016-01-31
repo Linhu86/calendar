@@ -5,7 +5,7 @@
 #include "rtos.h"
 #include "types.h"
 
-extern int32_t calendar_exit;
+int32_t calendar_exit = CALENDAR_RUNNING;
 
 static void *calendar_manager_thread_entry(void *param)
 {

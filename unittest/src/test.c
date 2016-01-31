@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include "rtos.h"
+#include "common_include.h"
+#include "user_input_parse.h"
 #include "CUnit/Basic.h"
 
 int init_suite_rtos(void)
@@ -15,12 +17,71 @@ int clean_suite_rtos(void)
   return 0;
 }
 
-static void testFsOpen(void)
+static void test_FsOpen(void)
 {
   file_hdl fd;
   CU_ASSERT(SUCCESS == FsOpen(&fd, "tmp.txt", OPEN_MODE_READ_ONLY));
   CU_ASSERT(NULL != fd);
 }
+
+int init_suite_string_parse(void)
+{
+  return 0; 
+}
+
+int clean_suite_string_parse(void)
+{
+  return 0;
+}
+
+static void test_string_parse(void)
+{
+  /* is_weekday test. */
+  CU_ASSERT(MONDAY_IDX == is_weekday_test_wrapper("Monday"));
+  CU_ASSERT(TUESDAY_IDX == is_weekday_test_wrapper("Tuesday"));
+  CU_ASSERT(WEDNESDAY_IDX == is_weekday_test_wrapper("Wednesday"));
+  CU_ASSERT(THUESDAY_IDX == is_weekday_test_wrapper("Thuesday"));
+  CU_ASSERT(FRIDAY_IDX == is_weekday_test_wrapper("Friday"));
+  CU_ASSERT(SATURDAY_IDX == is_weekday_test_wrapper("Saturday"));
+  CU_ASSERT(SUNDAY_IDX == is_weekday_test_wrapper("Sunday"));
+  CU_ASSERT(-1 == is_weekday_test_wrapper(""));
+  CU_ASSERT(-1 == is_weekday_test_wrapper("SUN"));
+
+
+  /*is_valid_time test */
+  uint32_t start_time = 0, stop_time = 0;
+  CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("8:00-13:00", &start_time, &stop_time));
+  CU_ASSERT(8 ==start_time);
+  CU_ASSERT(13 ==stop_time);
+
+  start_time = 0;
+  stop_time = 0;
+  CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("00:00-9:00", &start_time, &stop_time));
+  CU_ASSERT(0 ==start_time);
+  CU_ASSERT(9 ==stop_time);
+
+  start_time = 0;
+  stop_time = 0;
+  CU_ASSERT(SUCCESS == is_valid_time_test_wrapper("11:00-23:00", &start_time, &stop_time));
+  CU_ASSERT(11 ==start_time);
+  CU_ASSERT(23 ==stop_time);
+
+  start_time = 0;
+  stop_time = 0;
+  CU_ASSERT(FAILURE == is_valid_time_test_wrapper("112:00-23:00", &start_time, &stop_time));
+  CU_ASSERT(FAILURE == is_valid_time_test_wrapper("", &start_time, &stop_time));
+  CU_ASSERT(FAILURE == is_valid_time_test_wrapper("12:00-238:00", &start_time, &stop_time));
+
+  /*check_line_format_test */
+  CU_ASSERT(SUCCESS == check_line_format_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));
+  CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("MONDAY  10:00-11:00 Pickup Child."));
+  CU_ASSERT(FAILURE  == check_line_format_test_wrapper("MONDAY10:00-11:00 Pickup Child."));
+  CU_ASSERT(FAILURE  == check_line_format_test_wrapper(""));
+
+  CU_ASSERT(SUCCESS == line_parse_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));  
+}
+
+
 
 /* The main() function for setting up and running the tests.
  * Returns a CUE_SUCCESS on successful running, another
@@ -42,8 +103,14 @@ int main()
    }
 
    /* add the tests to the suite */
-   /* NOTE - ORDER IS IMPORTANT - MUST TEST fread() AFTER fprintf() */
-   if (NULL == CU_add_test(pSuite, "test of FsOpen", testFsOpen))
+   if (NULL == CU_add_test(pSuite, "test of FsOpen", test_FsOpen))
+   {
+      CU_cleanup_registry();
+      return CU_get_error();
+   }
+
+   /* add the tests to the suite */
+   if (NULL == CU_add_test(pSuite, "test of string parse", test_string_parse))
    {
       CU_cleanup_registry();
       return CU_get_error();

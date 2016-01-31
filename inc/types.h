@@ -10,6 +10,10 @@ typedef enum {
     SUCCESS = 1
 } BOOLEAN;
 
+#define IN
+
+#define OUT
+
 #define UNUSED(x) { x = 0;}
 
 #ifdef DEBUG_INFO_ON
