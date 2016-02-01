@@ -12,6 +12,7 @@
 
 extern int32_t calendar_exit;
 
+static mqd_t mq;
 static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
 
 static char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
@@ -30,18 +31,13 @@ static void clear_buffer(void)
 
 static void dispatch_msg_to_calendar_mgr(char8_t *msg)
 {
-  mqd_t mq;
+
   ssize_t bytes_write;
 
   memset(send_buffer, '\0', MAX_MSG_QUEUE_SIZE);
   memset(recv_buffer, '\0', MAX_MSG_QUEUE_SIZE);
 
   strncpy(send_buffer, msg, strlen(msg));
-
-  if(FAILURE == QueueCreate(&mq, QUEUE_NAME, MAX_MSG_QUEUE_SIZE, MAX_MSG_QUEUE_NUM))
-  {
-    calendar_quit();
-  }
 
   if(FAILURE == QueueSend(&mq, send_buffer, MODE_BLOCK))
   {
@@ -65,7 +61,6 @@ static void dispatch_msg_to_calendar_mgr(char8_t *msg)
 
   printf("\nResult:  %s\n\n\n", recv_buffer);
 
- // QueueDelete(&mq, QUEUE_NAME);
 }
 
 
@@ -76,6 +71,11 @@ static void *user_input_process_thread_entry(void *param)
   int32_t valid_choice = 0;
 
   UNUSED(param);
+
+  if(FAILURE == QueueCreate(&mq, QUEUE_NAME, MAX_MSG_QUEUE_SIZE, MAX_MSG_QUEUE_NUM))
+  {
+    calendar_quit();
+  }
     
   while(!calendar_exit)
   {
@@ -112,6 +112,8 @@ static void *user_input_process_thread_entry(void *param)
       clear_buffer();
     }
   }
+
+  QueueDelete(&mq, QUEUE_NAME);
 }
 
 static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT float32_t *stop_time)
