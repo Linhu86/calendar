@@ -14,7 +14,9 @@
 
 /**************************************** Global variable and data definition ******************************/
 
-extern int32_t calendar_exit;
+int32_t calendar_exit = CALENDAR_RUNNING;
+
+mutex_hdl calendar_lock;
 
 static mqd_t mq;
 static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
@@ -412,6 +414,30 @@ inline Bool check_line_format_test_wrapper(char8_t *line)
 inline Bool line_parse_test_wrapper(IN char8_t *line)
 {
   return line_parse(line);
+}
+
+void mutex_lock_init()
+{
+  if(FAILURE == MutexCreate(&calendar_lock))
+  {
+    CALENDER_DEBUG("Failed to init mutex lock: %s", strerror(errno));
+  }
+  else
+  {
+    CALENDER_DEBUG("Succeed to create mutex lock.");
+  }
+}
+
+void mutex_lock_deinit()
+{
+  if(FAILURE == MutexDestroy(&calendar_lock))
+  {
+    CALENDER_DEBUG("Failed to deinit mutex lock: %s", strerror(errno));
+  }
+  else
+  {
+    CALENDER_DEBUG("Succeed to delete mutex lock.");
+  }
 }
 
 

@@ -28,6 +28,7 @@ Bool ThreadCreate(thread_hdl* thread,   /* OS thread reference */
 
   if(NULL == thread)
   {
+    CALENDER_DEBUG("Invalid parameters.");
     return FAILURE;
   }
 
@@ -55,6 +56,7 @@ Bool ThreadDetach(thread_hdl* thread)
 
   if(NULL == thread)
   {
+    CALENDER_DEBUG("Invalid parameters.");
     return FAILURE;
   }
 
@@ -90,6 +92,7 @@ Bool QueueCreate( mqd_hdl*         queue,
 
   if(NULL == queue || NULL == name)
   {
+     CALENDER_DEBUG("Invalid parameters.");
      return FAILURE;
   }
 
@@ -126,6 +129,7 @@ void QueueDelete(mqd_hdl* queue, const char8_t *name)
 {
   if(NULL == queue || NULL == name)
   {
+    CALENDER_DEBUG("Invalid parameters.");
     return;
   }
 
@@ -147,6 +151,7 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
 
   if(NULL == queue)
   {
+     CALENDER_DEBUG("Invalid parameters.");
      return FAILURE;
   }
 
@@ -179,6 +184,7 @@ Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
 
   if(NULL == queue)
   {
+     CALENDER_DEBUG("Invalid parameters.");
      return FAILURE;
   }
 
@@ -198,6 +204,77 @@ Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
   return ret;
 }
 
+/** Create a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexCreate(mutex_hdl *lock)
+{
+  if(NULL == lock)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return FAILURE;
+  }
+
+  if(pthread_mutex_init(lock, NULL) != 0)
+  {
+    CALENDER_DEBUG("mutex init failed :%s", strerror(errno));
+    return FAILURE;
+  }
+
+  return SUCCESS;
+}
+
+/** Block a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexLock(mutex_hdl *lock)
+{
+  if(NULL == lock)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return FAILURE;
+  }
+  
+  pthread_mutex_lock(lock);
+
+  return SUCCESS;
+}
+
+/** Release a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexUnLock(mutex_hdl *lock)
+{
+  if(NULL == lock)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return FAILURE;
+  }
+
+  pthread_mutex_unlock(lock);
+
+  return SUCCESS;
+}
+
+/** Destroy a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexDestroy(mutex_hdl *lock)
+{
+  if(NULL == lock)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return FAILURE;
+  }
+  pthread_mutex_destroy(lock);
+  return SUCCESS;
+}
+
+
 Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode)
 {
   FILE *fd;
@@ -206,6 +283,7 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode)
 
   if(NULL == file_hdl_ptr || NULL == path)
   {
+     CALENDER_DEBUG("Invalid parameters.");
      return FAILURE;
   }
 
@@ -247,6 +325,12 @@ Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, uint32_t size)
 {
   Bool ret;
 
+  if(NULL == file_hdl_ptr || NULL == buffer)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return FAILURE;
+  }
+
   if(size != fread(buffer,1,size,file_hdl_ptr))
   {
     CALENDER_DEBUG("Filed to read file, error %s", strerror(errno));
@@ -262,6 +346,12 @@ Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, uint32_t size)
 
 uint32_t FsGetSize(file_hdl file_hdl_ptr)
 {
+  if(NULL == file_hdl_ptr)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return FAILURE;
+  }
+
   uint32_t size = 0;
   fseek(file_hdl_ptr, 0L, SEEK_END);
   size = ftell(file_hdl_ptr);
@@ -271,6 +361,12 @@ uint32_t FsGetSize(file_hdl file_hdl_ptr)
 
 void FsClose(file_hdl file_hdl_ptr)
 {
+  if(NULL == file_hdl_ptr)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return;
+  }
+
   fclose(file_hdl_ptr);
 }
 

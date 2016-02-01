@@ -44,7 +44,9 @@ static char8_t time_available_pattern[2][10] = {"available", "free"};
 
 static char8_t time_occupy_pattern[2][10] = {"busy", "occupy"};
 
-int32_t calendar_exit = CALENDAR_RUNNING;
+extern int32_t calendar_exit;
+
+extern mutex_hdl calendar_lock;
 
 static char8_t input_buffer[MAX_MSG_QUEUE_SIZE + 1];
 static char8_t answer_buffer[MAX_MSG_QUEUE_SIZE +1];

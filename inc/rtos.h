@@ -89,6 +89,24 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend);
 
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend);
 
+/** Block a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexLock(mutex_hdl *lock);
+
+/** Release a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexUnLock(mutex_hdl *lock);
+
+
+/** Destroy a mutex lock.
+    @param  mutex       Pointer to the mutex.
+    @return             Result value */
+
+Bool MutexDestroy(mutex_hdl *lock);
 
 
 /** Open a file .

@@ -2,6 +2,7 @@
 #define __COMMOM_INCLUDE_H__
 
 #include "types.h"
+#include "rtos.h"
 
 #define QUEUE_NAME "/calendar_msgq"
 
@@ -41,7 +42,6 @@ typedef enum{
 #define EPSINON 0.00001
 #define FLOAT_COMP(a, b)  (((a-b >= - EPSINON) && (a-b <= EPSINON)) ? 1 : 0)
 
-
 typedef enum{
   CALENDAR_RUNNING = 0,
   CALENDAR_EXIT = 1
@@ -59,7 +59,9 @@ typedef struct event
 
 /* should implement lock to aviod race condition.*/ 
 #define calendar_quit(void){ \
+  MutexLock(&calendar_lock);  \
   calendar_exit = CALENDAR_EXIT; \
+  MutexUnLock(&calendar_lock);    \
 }
 
 #endif

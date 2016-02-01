@@ -20,6 +20,8 @@ static void calendar_app_init(void)
   calendar_database_init();
 
   parse_file();
+
+  mutex_lock_init();
   
   calendar_manager_thread_init();
   
@@ -29,6 +31,7 @@ static void calendar_app_init(void)
 static void calendar_app_deinit(void)
 {
   calendar_database_deinit();
+  mutex_lock_deinit();
 }
 
 
