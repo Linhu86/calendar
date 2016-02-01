@@ -35,6 +35,8 @@ dayinfo_t calendar_database[WEEKDAY];
 
 static char8_t event_tmp[EVENT_NAME_LEN];
 
+static char tmp[MAX_MSG_QUEUE_SIZE+1];
+
 static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start_time, OUT char8_t *event_name)
 {
   event_t *ptr = calendar_database[weekday].day_info_event.next;
@@ -184,44 +186,57 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
   return SUCCESS;
 }
 
-void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
+static Bool retrieve_time_by_dailyrange(IN int32_t range,IN OUT float32_t *start_time, float32_t *stop_time)
 {
-  if(answer == NULL)
-    return;
-
-  char tmp[MAX_MSG_QUEUE_SIZE+1];
-
-  float32_t start_time;
-  float32_t stop_time;
+  if(range > DAY_RANGE_LAST)
+  {
+    CALENDER_DEBUG("daily range value error: %d", range);
+    return FAILURE;
+  }
 
   if(WHOLE_DAY == range)
   {
-    start_time = 0.00;
-    stop_time = 24.00;
+    *start_time = 0.00;
+    *stop_time = 24.00;
   }
   else if(MORNING_ONLY == range)
   {
-    start_time = 0.00;
-    stop_time = 11.59;
+    *start_time = 0.00;
+    *stop_time = 11.59;
   }
   else if(AFTERNOON_ONLY == range)
   {
-    start_time = 12.00;
-    stop_time = 17.59;
+    *start_time = 12.00;
+    *stop_time = 17.59;
   }
   else if(NIGHT_ONLY == range)
   {
-    start_time = 18.00;
-    stop_time = 24.00;
+    *start_time = 18.00;
+    *stop_time = 23.59; 
   }
 
+  CALENDER_DEBUG("start time %.2f according to the daily range value: %d", *start_time, range)
+
+  return SUCCESS;
+}
+
+
+void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
+{
+  float32_t start_time = 0;
+  float32_t stop_time = 0;
+  if(answer == NULL || range > DAY_RANGE_LAST || weekday >WEEKDAY_LAST)
+    return;
+
+  if(FAILURE == retrieve_time_by_dailyrange(range, &start_time, &stop_time))
+    return;
+  
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
   while(NULL != ptr)
   {
     if(ptr->start_time >= start_time)
     {
-      strncpy(tmp, answer, strlen(answer));
       strncat(answer, ptr->event_name, strlen(ptr->event_name)+1);
       strncat(answer, ",  ", 4);
       CALENDER_DEBUG("weekday %d append event [%s] into answer list %s.", weekday, ptr->event_name, answer);
@@ -296,17 +311,27 @@ static Bool event_pattern_match(char8_t *message, char8_t *event_name)
   }
 }
 
-Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_name)
+inline Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_name)
 {
   return event_pattern_match(message, event_name);
 }
 
 
-Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer)
+Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer, int32_t daylight_range)
 {
   uint32_t i = 0;
+  uint32_t ret = FAILURE;
   event_t *ptr = NULL;
-/*
+  char8_t weekday_string[10];
+  float32_t start_time = 0;
+  float32_t stop_time = 0;
+
+  if(NULL == message || NULL == answer || daylight_range > DAY_RANGE_LAST)
+    return FAILURE;
+
+  if(FAILURE == retrieve_time_by_dailyrange(daylight_range, &start_time, &stop_time))
+    return FAILURE;
+
   for(i = 0; i < WEEKDAY; i++)
   {
     event_t *ptr = calendar_database[i].day_info_event.next;
@@ -314,12 +339,60 @@ Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer)
     {
       if(SUCCESS == event_pattern_match(message, ptr->event_name))
       {
-
+        if(ptr->start_time > start_time && ptr->start_time < stop_time)
+        {
+          CALENDER_DEBUG("Find a matched event:[%s] start time:%.2f", ptr->event_name, ptr->start_time);
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          ret = SUCCESS;
+        }
       }
       ptr=ptr->next;
     }
   }
-*/
+
+  return SUCCESS;
+}
+
+
+Bool event_pattern_match_calendar_time(char8_t *message, char *answer, int32_t daylight_range)
+{
+  uint32_t i = 0;
+  uint32_t ret = FAILURE;
+  event_t *ptr = NULL;
+  char8_t weekday_string[10];
+  float32_t start_time = 0;
+  float32_t stop_time = 0;
+
+  if(NULL == message || NULL == answer || daylight_range > DAY_RANGE_LAST)
+    return FAILURE;
+
+  if(FAILURE == retrieve_time_by_dailyrange(daylight_range, &start_time, &stop_time))
+    return FAILURE;
+
+
+  for(i = 0; i < WEEKDAY; i++)
+  {
+    event_t *ptr = calendar_database[i].day_info_event.next;
+    while(ptr)
+    {
+      if(SUCCESS == event_pattern_match(message, ptr->event_name))
+      {
+        if(ptr->start_time > start_time && ptr->start_time < stop_time)
+        {
+          CALENDER_DEBUG("Find a matched event:[%s] start time:%.2f", ptr->event_name, ptr->start_time);
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          ret = SUCCESS;
+        }
+      }
+      ptr=ptr->next;
+    }
+  }
+
+  return SUCCESS;
 }
 
 

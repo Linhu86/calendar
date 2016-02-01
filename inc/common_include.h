@@ -18,14 +18,16 @@ typedef enum{
     THUESDAY_IDX,
     FRIDAY_IDX,
     SATURDAY_IDX,
-    SUNDAY_IDX
+    SUNDAY_IDX,
+    WEEKDAY_LAST
 } day_idx;
 
 typedef enum{
     WHOLE_DAY = 0,
     MORNING_ONLY,
     AFTERNOON_ONLY,
-    NIGHT_ONLY
+    NIGHT_ONLY,
+    DAY_RANGE_LAST
 } day_range;
 
 

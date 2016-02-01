@@ -107,7 +107,7 @@ static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday
 static Bool check_weekday_answer_pattern(char8_t *message)
 {
   int i = 0;
-  for(i = 0; i < 3; i++)
+  for(i = 0; i < 2; i++)
   {
     if(strstr(message, weekday_answer_pattern[i]) != NULL)
     {
@@ -115,7 +115,7 @@ static Bool check_weekday_answer_pattern(char8_t *message)
         return SUCCESS;
     }
   }
-  return FAILURE;  
+  return FAILURE;
 }
 
 static void process_input_string(IN char8_t *message, OUT char8_t *answer)
@@ -138,13 +138,15 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 
   weekday_answer_pattern_presents = check_weekday_answer_pattern(message);
 
-  if(weekday_query_pattern_presents != -1 && motivation_pattern_presents != FAILURE && weekday_answer_pattern_presents == FAILURE)
+  if(weekday_query_pattern_presents != -1 && motivation_pattern_presents == SUCCESS && weekday_answer_pattern_presents == FAILURE)
   {
+    CALENDER_DEBUG("-------------Entry answer_with_event_by_weekday-----------");
     answer_with_event_by_weekday(answer, weekday_query_pattern_presents, daylight_range);
   }
   else if(weekday_answer_pattern_presents == SUCCESS && motivation_pattern_presents == FAILURE && weekday_query_pattern_presents == -1)
   {
-    event_match = event_pattern_match_calendar_weekday(message, answer);
+    CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday-----------");
+    event_match = event_pattern_match_calendar_weekday(message, answer, daylight_range);
   }
 
   CALENDER_DEBUG("Prepared answer message [%s] back to user.", answer);
@@ -193,12 +195,12 @@ void calendar_manager_thread_init(void)
   Bool ret;
 
   ret = ThreadCreate( &thread_id,
-                                 THREAD_CALENDAR_MANAGER_NAME,
-                                 THREAD_DEFAULT_PRIORITY,
-                                  NULL,
-                                  THREAD_DEFAULT_STACK_SIZE,
-                                  calendar_manager_thread_entry,
-                                  (void *)(NULL) );
+                      THREAD_CALENDAR_MANAGER_NAME,
+                      THREAD_DEFAULT_PRIORITY,
+                      NULL,
+                      THREAD_DEFAULT_STACK_SIZE,
+                      calendar_manager_thread_entry,
+                      (void *)(NULL) );
 
   if(FAILURE == ret)
   {
