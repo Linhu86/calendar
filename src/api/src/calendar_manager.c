@@ -23,14 +23,7 @@ Architecture:         thread                         thread
 #include "types.h"
 #include "helper_func.h"
 
-
 /**************************************** Global variable and data definition ******************************/
-
-typedef enum{
-  RETURN_TYPE_WEEKDAY = 0,
-  RETURN_TYPE_EVENT,
-  RETURN_TYPE_TIME
-} return_type;
 
 static char8_t weekday_query_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
 

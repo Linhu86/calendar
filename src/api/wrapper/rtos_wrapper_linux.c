@@ -393,5 +393,10 @@ void signal_handle(void)
   signal(SIGKILL, signal_handler); // kill process
 }
 
+/* get system time stamp*/
+int32_t get_time_stamp(void)
+{
+  return (int32_t)time(NULL);
+}
 
 

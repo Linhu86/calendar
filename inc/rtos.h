@@ -135,6 +135,9 @@ uint32_t FsGetSize(file_hdl file_hdl_ptr);
     @return               Result value */
 void FsClose(file_hdl file_hdl_ptr);
 
+/* get system time stamp */
+int32_t get_time_stamp(void);
+
 #endif
 
 

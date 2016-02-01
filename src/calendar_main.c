@@ -1,10 +1,5 @@
 /* calendar_main.c */
 
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <time.h>
-
 #include "user_input_parse.h"
 #include "calendar_manager.h"
 #include "common_include.h"

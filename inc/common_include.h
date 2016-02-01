@@ -64,5 +64,14 @@ typedef struct event
   MutexUnLock(&calendar_lock);    \
 }
 
+#ifdef DEBUG_INFO_ON
+#define CALENDER_DEBUG(fmt, ...) { \
+  printf("[TimeStamp: %d] [Pid:%lu] [Func:%s]: " #fmt "\n", get_time_stamp(), pthread_self(), __func__, ##__VA_ARGS__); \
+}
+#else
+#define CALENDER_DEBUG
+#endif
+
+
 #endif
 

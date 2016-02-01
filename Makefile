@@ -1,5 +1,5 @@
 #
-#  calendar Makefile
+#  calendar Makefile for linux platform
 #  Created by Linhu
 #  30/01/2016
 #
