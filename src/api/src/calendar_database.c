@@ -143,13 +143,13 @@ void calendar_database_deinit(void)
   {
     if(NULL == calendar_database[i].day_info_event.next)
         continue;
-    ptr = &calendar_database[i].day_info_event;
+    ptr = calendar_database[i].day_info_event.next;
     ptr_tmp = ptr->prev;
-    while(!ptr)
+    while(ptr)
     {
        ptr_tmp->next = ptr->next;
-       ptr->next->prev = ptr_tmp;
-       CALENDER_DEBUG("Remove event %s into last pos %d weekday %d.", ptr->event_name, i);
+       if(ptr->next) ptr->next->prev = ptr_tmp;
+       CALENDER_DEBUG("Remove event %s from weekday %d.", ptr->event_name, i);
        free(ptr);
        ptr = ptr_tmp->next;
     }
