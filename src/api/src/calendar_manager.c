@@ -30,13 +30,13 @@ typedef enum{
 } return_type;
 
 
-static char weekday_query_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
+static char8_t weekday_query_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
 
-static char motivation_pattern[3][10]  = {"what", "do", "want"};
+static char8_t motivation_pattern[3][10]  = {"what", "do", "want"};
 
-static char weekday_answer_pattern[2][10] = {"which", "which day"};
+static char8_t weekday_answer_pattern[2][10] = {"which", "which day"};
 
-static char time_schedule_pattern[3][10] = {"when", "what time"};
+static char8_t time_schedule_pattern[3][10] = {"when", "what time"};
 
 int32_t calendar_exit = CALENDAR_RUNNING;
 
@@ -72,6 +72,21 @@ static uint32_t check_motivation_pattern(char8_t *message)
   }
   return FAILURE;
 }
+
+static uint32_t check_time_schedule_pattern(char8_t *message)
+{
+  int i = 0;
+  for(i = 0; i < 2; i++)
+  {
+    if(strstr(message, time_schedule_pattern[i]) != NULL)
+    {
+        CALENDER_DEBUG("Success to find key word time_schedule_pattern [ %s ] from : [ %s ].", time_schedule_pattern[i], message);
+        return SUCCESS;
+    }
+  }
+  return FAILURE;
+}
+
 
 static uint32_t check_daylight_pattern(char8_t *message)
 {
@@ -120,11 +135,12 @@ static Bool check_weekday_answer_pattern(char8_t *message)
 
 static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 {
-  int32_t weekday_query_pattern_presents = 0;
-  int32_t motivation_pattern_presents = 0;
   int32_t daylight_range = WHOLE_DAY;
   int32_t event_match = 0;
+  int32_t weekday_query_pattern_presents = 0;
+  int32_t motivation_pattern_presents = 0;
   int32_t weekday_answer_pattern_presents = 0;
+  int32_t check_time_schedule_pattern_presents = 0;
 
   convert_message_to_lower_case(message);
 
@@ -138,6 +154,8 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 
   weekday_answer_pattern_presents = check_weekday_answer_pattern(message);
 
+  check_time_schedule_pattern_presents = check_time_schedule_pattern(message);
+
   if(weekday_query_pattern_presents != -1 && motivation_pattern_presents == SUCCESS && weekday_answer_pattern_presents == FAILURE)
   {
     CALENDER_DEBUG("-------------Entry answer_with_event_by_weekday-----------");
@@ -148,6 +166,12 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
     CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday-----------");
     event_match = event_pattern_match_calendar_weekday(message, answer, daylight_range);
   }
+  else if(check_time_schedule_pattern_presents == SUCCESS && motivation_pattern_presents == FAILURE && weekday_query_pattern_presents == -1)
+  {
+    CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday-----------");
+    event_match = event_pattern_match_calendar_time(message, answer, daylight_range);
+  }
+  
 
   CALENDER_DEBUG("Prepared answer message [%s] back to user.", answer);
 }

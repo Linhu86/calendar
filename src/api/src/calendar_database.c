@@ -371,6 +371,7 @@ Bool event_pattern_match_calendar_time(char8_t *message, char *answer, int32_t d
   if(FAILURE == retrieve_time_by_dailyrange(daylight_range, &start_time, &stop_time))
     return FAILURE;
 
+  memset(tmp, '\0', strlen(tmp));
 
   for(i = 0; i < WEEKDAY; i++)
   {
@@ -383,8 +384,8 @@ Bool event_pattern_match_calendar_time(char8_t *message, char *answer, int32_t d
         {
           CALENDER_DEBUG("Find a matched event:[%s] start time:%.2f", ptr->event_name, ptr->start_time);
           convert_weekday_to_string(i, weekday_string);
-          strncat(answer, weekday_string, strlen(weekday_string) + 1);
-          strncat(answer, ",  ", 4);
+          snprintf(tmp, strlen(weekday_string) + sizeof(ptr->start_time) + 8, "[%s: %.2f],  ", weekday_string, ptr->start_time);
+          strncat(answer, tmp, strlen(tmp) + 1);
           ret = SUCCESS;
         }
       }

@@ -61,3 +61,21 @@ void convert_weekday_to_string(IN uint32_t weekday, IN OUT char8_t *weekday_stri
 
 }
 
+
+void convert_time_format(char8_t *string)
+{
+  char8_t *ptr = string;
+
+  if(NULL == string)
+    return;
+
+  while(*ptr != '\0')
+  {
+    if(*ptr == '.')
+        *ptr = ':';
+    ptr++;
+  }
+
+}
+
+
