@@ -30,6 +30,13 @@ typedef enum{
     DAY_RANGE_LAST
 } day_range;
 
+typedef enum{
+  AVAIL_DEFAULT = 0,
+  AVAIL_FREE,
+  AVAIL_BUSY,
+  AVAIL_LAST
+} condition_avail;
+
 
 #define EPSINON 0.00001
 #define FLOAT_COMP(a, b)  (((a-b >= - EPSINON) && (a-b <= EPSINON)) ? 1 : 0)

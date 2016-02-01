@@ -15,7 +15,7 @@ Every day owns an event bidirection list sorted by start time.
 
 [ Tuesday ]     -> [event 1] <-> [event 2] <->...<-> [event n] ->NULL
 
-[ Wednesday ] -> [event 1] <-> [event 2] <->...<-> [event n] ->NULL
+[ Wednesday ]   -> [event 1] <-> [event 2] <->...<-> [event n] ->NULL
 
       .
       .
@@ -182,7 +182,7 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
   new_event->stop_time = stop_time;
 
   event_insert_into_db(weekday, new_event);
-  
+
   return SUCCESS;
 }
 
@@ -242,7 +242,7 @@ void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN 
       CALENDER_DEBUG("weekday %d append event [%s] into answer list %s.", weekday, ptr->event_name, answer);
     }
     ptr = ptr->next;
-  } 
+  }
 }
 
 static Bool event_pattern_match(char8_t *message, char8_t *event_name)
@@ -351,10 +351,120 @@ Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer, int32_
       ptr=ptr->next;
     }
   }
-
   return SUCCESS;
 }
 
+Bool event_pattern_match_calendar_weekday_avail(char8_t *message, char8_t *answer, int32_t daylight_range, int32_t avail)
+{
+  int32_t i = 0;
+  int32_t ret = FAILURE;
+  char8_t weekday_string[10];
+
+  if(NULL == message || NULL == answer || daylight_range > DAY_RANGE_LAST || avail > AVAIL_LAST)
+    return FAILURE;
+
+  if(daylight_range == WHOLE_DAY)
+  {
+    if(AVAIL_FREE == avail)
+    {
+      for(i = 0; i < 7; i++)
+      {
+        if((calendar_database[i].is_free_morning == 1) && (calendar_database[i].is_free_afternoon == 1))
+        {
+          memset(weekday_string, '\0', 10);
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          CALENDER_DEBUG("Find %s whole day free.", weekday_string);
+          ret = SUCCESS;
+        }
+      }
+    }
+    else if(AVAIL_BUSY == avail)
+    {
+      for(i = 0; i < 7; i++)
+      {
+        memset(weekday_string, '\0', 10);
+        if((calendar_database[i].is_free_morning == 0) || (calendar_database[i].is_free_afternoon == 0))
+        {
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          CALENDER_DEBUG("Find %s whole day busy.", weekday_string);
+          ret = SUCCESS;
+        }
+      }
+    }
+  }
+  else if(daylight_range == MORNING_ONLY)
+  {
+    if(AVAIL_FREE == avail)
+    {
+      for(i = 0; i < 7; i++)
+      {
+        memset(weekday_string, '\0', 10);
+        if(calendar_database[i].is_free_morning == 1)
+        {
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          CALENDER_DEBUG("Find %s morning free.", weekday_string);
+          ret = SUCCESS;
+        }
+      }
+    }
+    else if(AVAIL_BUSY == avail)
+    {
+      for(i = 0; i < 7; i++)
+      {
+        memset(weekday_string, '\0', 10);
+        if(calendar_database[i].is_free_morning == 0)
+        {
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          CALENDER_DEBUG("Find %s morning busy.", weekday_string);
+          ret = SUCCESS;
+        }
+      }
+    }
+  }
+  else if(daylight_range == AFTERNOON_ONLY)
+  {
+    if(AVAIL_FREE == avail)
+    {
+      for(i = 0; i < 7; i++)
+      {
+        memset(weekday_string, '\0', 10);
+        if(calendar_database[i].is_free_afternoon == 1)
+        {
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          CALENDER_DEBUG("Find %s afternoon free.", weekday_string);
+          ret = SUCCESS;
+        }
+      }
+    }
+    else if(AVAIL_BUSY == avail)
+    {
+      for(i = 0; i < 7; i++)
+      {
+        memset(weekday_string, '\0', 10);
+        if(calendar_database[i].is_free_afternoon == 0)
+        {
+          convert_weekday_to_string(i, weekday_string);
+          strncat(answer, weekday_string, strlen(weekday_string) + 1);
+          strncat(answer, ",  ", 4);
+          CALENDER_DEBUG("Find %s afternoon busy.", weekday_string);
+          ret = SUCCESS;
+        }
+      }
+    }
+  }
+
+  return ret;
+}
 
 Bool event_pattern_match_calendar_time(char8_t *message, char *answer, int32_t daylight_range)
 {

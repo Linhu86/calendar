@@ -24,11 +24,10 @@ Architecture:         thread                         thread
 #include "helper_func.h"
 
 typedef enum{
-    RETURN_TYPE_WEEKDAY = 0,
-    RETURN_TYPE_EVENT,
-    RETURN_TYPE_TIME
+  RETURN_TYPE_WEEKDAY = 0,
+  RETURN_TYPE_EVENT,
+  RETURN_TYPE_TIME
 } return_type;
-
 
 static char8_t weekday_query_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
 
@@ -36,7 +35,11 @@ static char8_t motivation_pattern[3][10]  = {"what", "do", "want"};
 
 static char8_t weekday_answer_pattern[2][10] = {"which", "which day"};
 
-static char8_t time_schedule_pattern[3][10] = {"when", "what time"};
+static char8_t time_schedule_pattern[2][10] = {"when", "what time"};
+
+static char8_t time_available_pattern[2][10] = {"available", "free"};
+
+static char8_t time_occupy_pattern[2][10] = {"busy", "occupy"};
 
 int32_t calendar_exit = CALENDAR_RUNNING;
 
@@ -88,6 +91,34 @@ static uint32_t check_time_schedule_pattern(char8_t *message)
 }
 
 
+static uint32_t check_time_available_pattern(char8_t *message)
+{
+  int i = 0;
+  for(i = 0; i < 2; i++)
+  {
+    if(strstr(message, time_available_pattern[i]) != NULL)
+    {
+        CALENDER_DEBUG("Success to find key word time_available_pattern [ %s ] from : [ %s ].", time_available_pattern[i], message);
+        return SUCCESS;
+    }
+  }
+  return FAILURE;
+}
+
+static uint32_t check_time_occupy_pattern(char8_t *message)
+{
+  int i = 0;
+  for(i = 0; i < 2; i++)
+  {
+    if(strstr(message, time_occupy_pattern[i]) != NULL)
+    {
+        CALENDER_DEBUG("Success to find key word time_occupy_pattern [ %s ] from : [ %s ].", time_occupy_pattern[i], message);
+        return SUCCESS;
+    }
+  }
+  return FAILURE;
+}
+
 static uint32_t check_daylight_pattern(char8_t *message)
 {
   uint32_t daylight_range = WHOLE_DAY;
@@ -137,6 +168,7 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 {
   int32_t daylight_range = WHOLE_DAY;
   int32_t event_match = 0;
+  int32_t avail = AVAIL_DEFAULT;
   int32_t weekday_query_pattern_presents = 0;
   int32_t motivation_pattern_presents = 0;
   int32_t weekday_answer_pattern_presents = 0;
@@ -156,23 +188,33 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 
   check_time_schedule_pattern_presents = check_time_schedule_pattern(message);
 
-  if(weekday_query_pattern_presents != -1 && motivation_pattern_presents == SUCCESS && weekday_answer_pattern_presents == FAILURE)
+  if(SUCCESS == check_time_available_pattern(message))
+    avail = AVAIL_FREE;
+
+  if(SUCCESS == check_time_occupy_pattern(message))
+    avail = AVAIL_BUSY;
+
+  if((weekday_query_pattern_presents != -1) && (motivation_pattern_presents == SUCCESS) && (weekday_answer_pattern_presents == FAILURE))
   {
     CALENDER_DEBUG("-------------Entry answer_with_event_by_weekday-----------");
     answer_with_event_by_weekday(answer, weekday_query_pattern_presents, daylight_range);
   }
-  else if(weekday_answer_pattern_presents == SUCCESS && motivation_pattern_presents == FAILURE && weekday_query_pattern_presents == -1)
+  else if((weekday_answer_pattern_presents == SUCCESS) && (motivation_pattern_presents == FAILURE) && (weekday_query_pattern_presents == -1) && (avail == AVAIL_DEFAULT))
   {
     CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday-----------");
     event_match = event_pattern_match_calendar_weekday(message, answer, daylight_range);
   }
-  else if(check_time_schedule_pattern_presents == SUCCESS && motivation_pattern_presents == FAILURE && weekday_query_pattern_presents == -1)
+  else if((weekday_answer_pattern_presents == SUCCESS) && (avail != AVAIL_DEFAULT))
   {
-    CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday-----------");
+    CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday_avail-----------");
+    event_match = event_pattern_match_calendar_weekday_avail(message, answer, daylight_range, avail);
+  }
+  else if((check_time_schedule_pattern_presents == SUCCESS) && (weekday_query_pattern_presents == -1))
+  {
+    CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_time-----------");
     event_match = event_pattern_match_calendar_time(message, answer, daylight_range);
   }
   
-
   CALENDER_DEBUG("Prepared answer message [%s] back to user.", answer);
 }
 

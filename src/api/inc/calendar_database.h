@@ -18,7 +18,6 @@ Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer, int32_
 
 Bool event_pattern_match_calendar_time(char8_t *message, char *answer, int32_t daylight_range);
 
-
 /* wrapper function exported for unit test. */
 inline Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_name);
 
