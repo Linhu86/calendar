@@ -7,11 +7,16 @@
 #include "common_include.h"
 #include "calendar_manager.h"
 #include "calendar_database.h"
+#include "helper_func.h"
 #include "rtos.h"
 
 extern int32_t calendar_exit;
 
 static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
+
+static char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
+static char8_t recv_buffer[MAX_MSG_QUEUE_SIZE];
+
 
 static void clear_buffer(void)
 {
@@ -27,8 +32,6 @@ static void dispatch_msg_to_calendar_mgr(char8_t *msg)
 {
   mqd_t mq;
   ssize_t bytes_write;
-  char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
-  char8_t recv_buffer[MAX_MSG_QUEUE_SIZE];
 
   memset(send_buffer, '\0', MAX_MSG_QUEUE_SIZE);
   memset(recv_buffer, '\0', MAX_MSG_QUEUE_SIZE);
@@ -365,15 +368,15 @@ static Bool line_parse(IN char8_t *line)
 
    *ptr_word = '\0';
 
-    CALENDER_DEBUG("Add a new event to database: database[%d]: start_time: %.2f  stop_time: %.2f event: %s ", weekday, start_time, stop_time, word);
+   CALENDER_DEBUG("Add a new event to database: database[%d]: start_time: %.2f  stop_time: %.2f event: %s ", weekday, start_time, stop_time, word);
 
-    if(FAILURE == calendar_data_base_event_add(weekday, start_time, stop_time, word))
-    {
-      CALENDER_DEBUG("Failed to add a new event to database");
-      return FAILURE;       
-    }
+   if(FAILURE == calendar_data_base_event_add(weekday, start_time, stop_time, word))
+   {
+     CALENDER_DEBUG("Failed to add a new event to database");
+     return FAILURE;
+   }
     
-    return SUCCESS;
+   return SUCCESS;
    
 }
 

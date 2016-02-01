@@ -33,6 +33,8 @@ typedef struct dayinfo
 
 dayinfo_t calendar_database[WEEKDAY];
 
+static char8_t event_tmp[EVENT_NAME_LEN];
+
 static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start_time, OUT char8_t *event_name)
 {
   event_t *ptr = calendar_database[weekday].day_info_event.next;
@@ -220,13 +222,104 @@ void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN 
     if(ptr->start_time >= start_time)
     {
       strncpy(tmp, answer, strlen(answer));
-      //snprintf(answer, strlen(tmp) + strlen(ptr->event_name)+4, "%s    %s", answer, ptr->event_name);
       strncat(answer, ptr->event_name, strlen(ptr->event_name)+1);
       strncat(answer, ",  ", 4);
       CALENDER_DEBUG("weekday %d append event [%s] into answer list %s.", weekday, ptr->event_name, answer);
     }
     ptr = ptr->next;
   } 
+}
+
+static Bool event_pattern_match(char8_t *message, char8_t *event_name)
+{
+  uint32_t matched_byte = 0;
+  uint32_t total_byte = 0;
+  char8_t *ptr_event = NULL;
+  char8_t word[128];
+  char8_t *ptr_word = word;
+  uint32_t counter = 0;
+  uint32_t matched_index = 0;
+
+  if(!message || !event_name)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
+    return FAILURE;
+  }
+
+  memset(event_tmp, '\0', EVENT_NAME_LEN);
+  strncpy(event_tmp, event_name, strlen(event_name));
+
+  convert_message_to_lower_case(event_tmp);
+
+  total_byte = strlen(event_tmp);
+
+  ptr_event = event_tmp;
+
+  CALENDER_DEBUG("start to match [ %s ] with [ %s ]", event_tmp, message);
+
+  while(*ptr_event != '\0')
+  {
+    if(*ptr_event == ' ')
+    {
+      *ptr_word = '\0';
+      CALENDER_DEBUG("Found a new word: %s counter:%d", word, counter);
+      if(strstr(message, word) != NULL)
+      {
+        matched_byte += counter;
+      }
+
+      counter = 0;
+      ptr_word = word;
+    }
+    counter ++;
+    *ptr_word++ = *ptr_event++;
+  }
+
+  *ptr_word = '\0';
+
+  if(strstr(message, word) != NULL)
+  {
+    matched_byte += counter;
+  }
+
+  matched_index = (matched_byte*100)/total_byte;
+
+  CALENDER_DEBUG("Matched bytes: %d, total bytes:%d, matched_index:%d", matched_byte, total_byte, matched_index);
+
+  if(matched_index >= WORD_MATCH_THREADSHOLD)
+  {
+    return SUCCESS;
+  }
+  else
+  {
+    return FAILURE;
+  }
+}
+
+Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_name)
+{
+  return event_pattern_match(message, event_name);
+}
+
+
+Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer)
+{
+  uint32_t i = 0;
+  event_t *ptr = NULL;
+/*
+  for(i = 0; i < WEEKDAY; i++)
+  {
+    event_t *ptr = calendar_database[i].day_info_event.next;
+    while(ptr)
+    {
+      if(SUCCESS == event_pattern_match(message, ptr->event_name))
+      {
+
+      }
+      ptr=ptr->next;
+    }
+  }
+*/
 }
 
 

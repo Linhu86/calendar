@@ -3,14 +3,14 @@
    the pattern match methods and generate proper answer for the user input process thread.
 
 Architecture:         thread                         thread 
-                        /             \                  /                \      Create
-                       |               |                |                 |     Maintain  __________
-            query   |               |     query   |                 |     lookup    |                |
-   input  ->       |  input       |     ->      |   calendar  |     ->         |  calendar  |
-                       |  process  |                |   manager  |                 |  database |
-            <-       |  thread    |     <-       |   thread     |                 |_________|             
-            answer |               |     answer |                 |
-                        \               /                 \                / 
+                    /             \              /                \      Create
+                   |               |             |                 |     Maintain  __________
+          query    |               |     query   |                 |     lookup    |         |
+   input  ->       |  input        |     ->      |   calendar      |     ->        |calendar |
+                   |  process      |             |   manager       |               |database |
+          <-       |  thread       |     <-      |   thread        |               |_________|
+            answer |               |     answer  |                 |
+                   \               /              \                /
 
 */
 
@@ -21,6 +21,7 @@ Architecture:         thread                         thread
 #include "calendar_manager.h"
 #include "rtos.h"
 #include "types.h"
+#include "helper_func.h"
 
 typedef enum{
     RETURN_TYPE_WEEKDAY = 0,
@@ -29,27 +30,18 @@ typedef enum{
 } return_type;
 
 
-static char weekday_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
+static char weekday_query_pattern[7][10] = {"monday",  "tuesday", "wednesday", "thursday", "friday", "saturday","sunday"};
 
 static char motivation_pattern[3][10]  = {"what", "do", "want"};
 
-static char time_pattern[8][10] = {"when", "which", "which day", "free", "available"};
+static char weekday_answer_pattern[2][10] = {"which", "which day"};
+
+static char time_schedule_pattern[3][10] = {"when", "what time"};
 
 int32_t calendar_exit = CALENDAR_RUNNING;
 
-static void convert_message_to_lower_case(IN OUT char8_t *message)
-{
-   char8_t *ptr = message;
-   uint32_t i = 0;
-   for(i = 0; i < strlen(message); i++)
-   {
-      if((*ptr)>='A' && (*ptr)<='Z')
-      {
-         *ptr= (*ptr)+32;
-      }
-      ptr++;
-   }
-}
+static char8_t input_buffer[MAX_MSG_QUEUE_SIZE + 1];
+static char8_t answer_buffer[MAX_MSG_QUEUE_SIZE +1];
 
 static uint32_t check_weekday_pattern(char8_t *message)
 {
@@ -57,7 +49,7 @@ static uint32_t check_weekday_pattern(char8_t *message)
   uint32_t weekday = -1;
   for(i = 0; i < 7; i++)
   {
-    if(strstr(message, weekday_pattern[i]) != NULL)
+    if(strstr(message, weekday_query_pattern[i]) != NULL)
     {
       weekday = i;
       CALENDER_DEBUG("Success to find key word weekday [%d] from : [ %s ].", weekday, message);
@@ -106,30 +98,53 @@ static uint32_t check_daylight_pattern(char8_t *message)
   return daylight_range;
 }
 
+
 static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday, int32_t range)
 {
-   event_return_all_by_weekday(answer, weekday, range);
+  event_return_all_by_weekday(answer, weekday, range);
+}
+
+static Bool check_weekday_answer_pattern(char8_t *message)
+{
+  int i = 0;
+  for(i = 0; i < 3; i++)
+  {
+    if(strstr(message, weekday_answer_pattern[i]) != NULL)
+    {
+        CALENDER_DEBUG("Success to find key word to replay a answer with weekday [ %s ] from : [ %s ].", weekday_answer_pattern[i], message);
+        return SUCCESS;
+    }
+  }
+  return FAILURE;  
 }
 
 static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 {
-  int32_t weekday_pattern_presents = 0;
+  int32_t weekday_query_pattern_presents = 0;
   int32_t motivation_pattern_presents = 0;
   int32_t daylight_range = WHOLE_DAY;
+  int32_t event_match = 0;
+  int32_t weekday_answer_pattern_presents = 0;
 
   convert_message_to_lower_case(message);
 
   CALENDER_DEBUG("Converted message in lower case: %s.", message);
 
-  weekday_pattern_presents = check_weekday_pattern(message);
+  weekday_query_pattern_presents = check_weekday_pattern(message);
 
   motivation_pattern_presents = check_motivation_pattern(message);
 
   daylight_range = check_daylight_pattern(message);
 
-  if(weekday_pattern_presents != -1 && motivation_pattern_presents != 0)
+  weekday_answer_pattern_presents = check_weekday_answer_pattern(message);
+
+  if(weekday_query_pattern_presents != -1 && motivation_pattern_presents != FAILURE && weekday_answer_pattern_presents == FAILURE)
   {
-    answer_with_event_by_weekday(answer, weekday_pattern_presents, daylight_range);
+    answer_with_event_by_weekday(answer, weekday_query_pattern_presents, daylight_range);
+  }
+  else if(weekday_answer_pattern_presents == SUCCESS && motivation_pattern_presents == FAILURE && weekday_query_pattern_presents == -1)
+  {
+    event_match = event_pattern_match_calendar_weekday(message, answer);
   }
 
   CALENDER_DEBUG("Prepared answer message [%s] back to user.", answer);
@@ -139,13 +154,10 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 static void *calendar_manager_thread_entry(void *param)
 {
   UNUSED(param);
-  char8_t buffer[MAX_MSG_QUEUE_SIZE + 1];
-  char8_t answer[MAX_MSG_QUEUE_SIZE +1];
   mqd_hdl mq;
 
-  memset(buffer, '\0', MAX_MSG_QUEUE_SIZE+1);
-  memset(answer, '\0', MAX_MSG_QUEUE_SIZE+1);
-
+  memset(input_buffer, '\0', MAX_MSG_QUEUE_SIZE+1);
+  memset(answer_buffer, '\0', MAX_MSG_QUEUE_SIZE+1);
 
   if(FAILURE == QueueCreate(&mq, QUEUE_NAME, MAX_MSG_QUEUE_SIZE, MAX_MSG_QUEUE_NUM))
   {
@@ -154,22 +166,22 @@ static void *calendar_manager_thread_entry(void *param)
 
   while(!calendar_exit)
   {
-    if(FAILURE == QueueReceive(&mq, buffer, MODE_BLOCK))
+    if(FAILURE == QueueReceive(&mq, input_buffer, MODE_BLOCK))
     {
       calendar_quit();
     }
 
-    CALENDER_DEBUG("Success to receive message : [ %s ] from user input process thread.", buffer);
+    CALENDER_DEBUG("Success to receive message : [ %s ] from user input process thread.", input_buffer);
 
-    process_input_string(buffer, answer);
+    process_input_string(input_buffer, answer_buffer);
 
-    if(FAILURE == QueueSend(&mq, answer, MODE_BLOCK))
+    if(FAILURE == QueueSend(&mq, answer_buffer, MODE_BLOCK))
     {
       calendar_quit();
     }
 
     CALENDER_DEBUG("Success to Answer message to user input process thread.");
-    memset(answer, '\0', strlen(answer));
+    memset(answer_buffer, '\0', strlen(answer_buffer));
   }
 
   QueueDelete(&mq, QUEUE_NAME);

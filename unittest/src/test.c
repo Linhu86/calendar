@@ -73,14 +73,24 @@ static void test_string_parse(void)
   CU_ASSERT(FAILURE == is_valid_time_test_wrapper("", &start_time, &stop_time));
   CU_ASSERT(FAILURE == is_valid_time_test_wrapper("12:00-238:00", &start_time, &stop_time));
 
-  /*check_line_format_test */
+  /* check_line_format_test */
   CU_ASSERT(SUCCESS == check_line_format_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));
   CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("MONDAY  10:00-11:00 Pickup Child."));
   CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("Monday 16:00 Pick kids up"));
   CU_ASSERT(SUCCESS  == check_line_format_test_wrapper("Monday 10:00-11:00 Dentist."));
   CU_ASSERT(FAILURE  == check_line_format_test_wrapper(""));
 
-  CU_ASSERT(SUCCESS == line_parse_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));  
+  /* line_parse_test_wrapper */
+  CU_ASSERT(SUCCESS == line_parse_test_wrapper("MONDAY 10:00-11:00 Pickup Child."));
+
+  /* event_pattern_match_test_wrapper test */
+  CU_ASSERT(SUCCESS == event_pattern_match_test_wrapper("Which days do I have to pick up the kids?", "Pick up the kids"));
+  CU_ASSERT(SUCCESS == event_pattern_match_test_wrapper("Which days do I have to go to dentist?", "Dentist"));
+  CU_ASSERT(SUCCESS == event_pattern_match_test_wrapper("Which days do I have to go to the evening class?", "Evening class"));
+  CU_ASSERT(SUCCESS == event_pattern_match_test_wrapper("Which days do I have to take the kids to school?", "Take Kids to school"));
+  CU_ASSERT(SUCCESS == event_pattern_match_test_wrapper("Which days I will go to Pub with friends?", "Pub with friends"));
+  CU_ASSERT(FAILURE == event_pattern_match_test_wrapper("Which days I will go to Pub with friends?", "Play with friends"));
+  CU_ASSERT(FAILURE == event_pattern_match_test_wrapper("Which days do I have to pick up the kids?", "Take kids to school"));
 }
 
 

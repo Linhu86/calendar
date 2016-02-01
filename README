@@ -12,13 +12,15 @@ sudo apt-get install libcunit1
 
 sudo apt-get install libcunit1-dev
 
-2. Build the calendar application with a shell script build.sh
+2. If you want more verbose debug message info, you could turn on the debug print by remove comment on (#CFLAGS +=-D$(DEBUG_ON)).
+
+3. Build the calendar application with a shell script build.sh
 
 chmod a+x build.sh && ./build.sh
 
 two application will be compiled if everything goes well: ./calendar  and ./unittest/testapp.
 
-3. Launch the application ./calendar
+4. Launch the application ./calendar
 
    or launch the test application ./unittest/testapp for unittest.
 

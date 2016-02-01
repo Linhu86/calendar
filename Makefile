@@ -29,16 +29,18 @@ OS_WRAPPER=linux
 
 #Add source file.
 SOURCES += src/calendar_main.c \
-		       src/api/src/user_input_parse.c \
-		       src/api/src/calendar_manager.c \
-		       src/api/src/calendar_database.c \
-		       src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c \
+           src/api/src/user_input_parse.c \
+           src/api/src/calendar_manager.c \
+           src/api/src/calendar_database.c \
+           src/api/src/helper_func.c       \
+           src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c \
 
 TEST_SOURCES += unittest/src/test.c \
-		                src/api/src/user_input_parse.c \
-		                src/api/src/calendar_manager.c \
-		                src/api/src/calendar_database.c \
-				   src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c \
+                src/api/src/user_input_parse.c \
+                src/api/src/calendar_manager.c \
+                src/api/src/calendar_database.c \
+		        src/api/src/helper_func.c       \
+                src/api/wrapper/rtos_wrapper_$(OS_WRAPPER).c \
 
 #Include header file
 INC += -Iinc \
