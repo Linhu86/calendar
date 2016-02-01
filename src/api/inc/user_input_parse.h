@@ -19,7 +19,7 @@ void parse_file(void);
 
 inline Bool is_valid_time_test_wrapper(char8_t *word, float32_t *start_time, float32_t *stop_time);
 
-inline uint32_t is_weekday_test_wrapper(char *day);
+inline uint32_t is_weekday_test_wrapper(char8_t *day);
 
 inline Bool check_line_format_test_wrapper(char8_t *line);
 

@@ -38,7 +38,7 @@ dayinfo_t calendar_database[WEEKDAY];
 
 static char8_t event_tmp[EVENT_NAME_LEN];
 
-static char tmp[MAX_MSG_QUEUE_SIZE+1];
+static char8_t tmp[MAX_MSG_QUEUE_SIZE+1];
 
 
 /****************************************** Local function declearation ***************************************/
@@ -102,7 +102,7 @@ static Bool time_search_from_db_by_event(IN uint32_t weekday,  IN char8_t *event
 static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
 {
   event_t *ptr = &calendar_database[weekday].day_info_event;
-  int pos = 1;
+  uint32_t pos = 1;
 
   if(weekday >WEEKDAY_LAST || NULL == new_event)
     return;
@@ -258,7 +258,7 @@ static Bool event_pattern_match(char8_t *message, char8_t *event_name)
 
 void calendar_database_init(void)
 {
-  int i = 0;
+  int32_t i = 0;
   for(i = 0; i < WEEKDAY; i++)
   {
     calendar_database[i].is_free_morning = 1;
@@ -271,7 +271,7 @@ void calendar_database_init(void)
 
 void calendar_database_deinit(void)
 {
-  int i = 0;
+  int32_t i = 0;
   event_t *ptr = NULL;
   event_t *ptr_tmp = NULL;
   for(i = 0; i < WEEKDAY; i++)
@@ -348,7 +348,7 @@ inline Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_n
 }
 
 
-Bool event_pattern_match_calendar_weekday(char8_t *message, char *answer, int32_t daylight_range)
+Bool event_pattern_match_calendar_weekday(char8_t *message, char8_t *answer, int32_t daylight_range)
 {
   uint32_t i = 0;
   uint32_t ret = FAILURE;
@@ -497,7 +497,7 @@ Bool event_pattern_match_calendar_weekday_avail(char8_t *message, char8_t *answe
   return ret;
 }
 
-Bool event_pattern_match_calendar_time(char8_t *message, char *answer, int32_t daylight_range)
+Bool event_pattern_match_calendar_time(char8_t *message, char8_t *answer, int32_t daylight_range)
 {
   uint32_t i = 0;
   uint32_t ret = FAILURE;

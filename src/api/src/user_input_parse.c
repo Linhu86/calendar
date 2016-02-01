@@ -38,7 +38,7 @@ static void *user_input_process_thread_entry(void *param);
 
 static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT float32_t *stop_time);
 
-static uint32_t is_weekday(char *day);
+static uint32_t is_weekday(char8_t *day);
 
 static Bool check_line_format(char8_t *line);
 
@@ -187,8 +187,8 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
     return FAILURE;
   }
 
-  float_digit1 = (float)(*(ptr_word+1)-'0')/10;
-  float_digit2 = (float)(*(ptr_word+2)-'0')/100;
+  float_digit1 = (float32_t)(*(ptr_word+1)-'0')/10;
+  float_digit2 = (float32_t)(*(ptr_word+2)-'0')/100;
   *start_time = *start_time + float_digit1  + float_digit2;
 
   CALENDER_DEBUG("Get start time %.2f.", *start_time);
@@ -232,8 +232,8 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
       }
       else
       {
-        float_digit1 = (float)(*(ptr_word+1)-'0')/10;
-        float_digit2 = (float)(*(ptr_word+2)-'0')/100;
+        float_digit1 = (float32_t)(*(ptr_word+1)-'0')/10;
+        float_digit2 = (float32_t)(*(ptr_word+2)-'0')/100;
         *stop_time = *stop_time + float_digit1 + float_digit2;
         CALENDER_DEBUG("Get stop time %.2f.", *stop_time);
         return SUCCESS;
@@ -244,7 +244,7 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
   return SUCCESS;
 }
 
-static uint32_t is_weekday(char *day)
+static uint32_t is_weekday(char8_t *day)
 {
   uint32_t ret = 0;
 
@@ -403,7 +403,7 @@ inline Bool is_valid_time_test_wrapper(char8_t *word, float32_t *start_time, flo
 }
 
 
-inline uint32_t is_weekday_test_wrapper(char *day)
+inline uint32_t is_weekday_test_wrapper(char8_t *day)
 {
   return is_weekday(day);
 }
@@ -483,7 +483,7 @@ void parse_file(void)
 
   CALENDER_DEBUG("file size is %d\n", size);
 
-  char buffer[size];
+  char8_t buffer[size];
   
   memset(buffer, '\0', size);
 
@@ -494,9 +494,9 @@ void parse_file(void)
       calendar_quit();
   }
 
-  char *ptr = buffer;
-  char *pline = line;
-  int i = 0;
+  char8_t *ptr = buffer;
+  char8_t *pline = line;
+  int32_t i = 0;
 
   for(i = 0; i < size; i++)
   {

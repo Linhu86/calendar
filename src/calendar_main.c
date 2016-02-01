@@ -35,7 +35,7 @@ static void calendar_app_deinit(void)
 }
 
 
-int main()
+int32_t main()
 {
   calendar_app_init();
 

@@ -279,7 +279,7 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode)
 {
   FILE *fd;
   Bool ret;
-  char *open_mode=NULL;
+  char8_t *open_mode=NULL;
 
   if(NULL == file_hdl_ptr || NULL == path)
   {

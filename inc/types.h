@@ -17,7 +17,7 @@ typedef enum {
 
 #ifdef DEBUG_INFO_ON
 #define CALENDER_DEBUG(fmt, ...) { \
-  printf("[TimeStamp: %d] [Pid:%lu] [Func:%s]: " #fmt "\n", (int)time(NULL), pthread_self(), __func__, ##__VA_ARGS__); \
+  printf("[TimeStamp: %d] [Pid:%lu] [Func:%s]: " #fmt "\n", (int32_t)time(NULL), pthread_self(), __func__, ##__VA_ARGS__); \
 }
 #else
 #define CALENDER_DEBUG

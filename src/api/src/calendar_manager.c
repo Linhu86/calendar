@@ -97,7 +97,7 @@ static uint32_t check_weekday_pattern(char8_t *message)
 
 static uint32_t check_motivation_pattern(char8_t *message)
 {
-  int i = 0;
+  int32_t i = 0;
   if(NULL == message)
     return FAILURE;
 
@@ -114,7 +114,7 @@ static uint32_t check_motivation_pattern(char8_t *message)
 
 static uint32_t check_time_schedule_pattern(char8_t *message)
 {
-  int i = 0;
+  int32_t i = 0;
 
   if(NULL == message)
     return FAILURE;
@@ -133,7 +133,7 @@ static uint32_t check_time_schedule_pattern(char8_t *message)
 
 static uint32_t check_time_available_pattern(char8_t *message)
 {
-  int i = 0;
+  int32_t i = 0;
 
   if(NULL == message)
     return FAILURE;
@@ -151,7 +151,7 @@ static uint32_t check_time_available_pattern(char8_t *message)
 
 static uint32_t check_time_occupy_pattern(char8_t *message)
 {
-  int i = 0;
+  int32_t i = 0;
 
   if(NULL == message)
     return FAILURE;
@@ -203,7 +203,7 @@ static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday
 
 static Bool check_weekday_answer_pattern(char8_t *message)
 {
-  int i = 0;
+  int32_t i = 0;
 
   if(NULL == message)
     return FAILURE;
