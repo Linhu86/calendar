@@ -1,3 +1,5 @@
+/* user_input_parse.c */
+
 #include <stdio.h>
 #include <string.h>
 #include <rtos.h>
@@ -10,6 +12,8 @@
 #include "helper_func.h"
 #include "rtos.h"
 
+/**************************************** Global variable and data definition ******************************/
+
 extern int32_t calendar_exit;
 
 static mqd_t mq;
@@ -18,6 +22,23 @@ static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
 static char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
 static char8_t recv_buffer[MAX_MSG_QUEUE_SIZE];
 
+/****************************************** Local function declearation ***************************************/
+
+static void clear_buffer(void);
+
+static void dispatch_msg_to_calendar_mgr(char8_t *msg);
+
+static void *user_input_process_thread_entry(void *param);
+
+static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT float32_t *stop_time);
+
+static uint32_t is_weekday(char *day);
+
+static Bool check_line_format(char8_t *line);
+
+static Bool line_parse(IN char8_t *line);
+
+/****************************************** local function definition ***************************************/
 
 static void clear_buffer(void)
 {
@@ -97,7 +118,7 @@ static void *user_input_process_thread_entry(void *param)
     valid_choice = 0;
     while(valid_choice == 0)
     {
-      printf("Continue (Y/N)?\n");
+      printf("Do you want to continue (Y/N)?\n");
       scanf("%c", &ch);
       ch = toupper(ch);
       if(ch == 'Y' || ch == 'N')
@@ -217,12 +238,6 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
   return SUCCESS;
 }
 
-inline Bool is_valid_time_test_wrapper(char8_t *word, float32_t *start_time, float32_t *stop_time)
-{
-  return is_valid_time(word, start_time, stop_time);
-}
-
-
 static uint32_t is_weekday(char *day)
 {
   uint32_t ret = 0;
@@ -271,10 +286,6 @@ static uint32_t is_weekday(char *day)
   return ret;
 }
 
-inline uint32_t is_weekday_test_wrapper(char *day)
-{
-  return is_weekday(day);
-}
 
 /* check if each line is in proper format such as DAY HOUR EVENT */
 static Bool check_line_format(char8_t *line)
@@ -297,11 +308,6 @@ static Bool check_line_format(char8_t *line)
   }
 
   return SUCCESS;
-}
-
-inline Bool check_line_format_test_wrapper(char8_t *line)
-{
-  return check_line_format(line);
 }
 
 static Bool line_parse(IN char8_t *line)
@@ -383,10 +389,31 @@ static Bool line_parse(IN char8_t *line)
 }
 
 
+/****************************************** export function definition ***************************************/
+
+inline Bool is_valid_time_test_wrapper(char8_t *word, float32_t *start_time, float32_t *stop_time)
+{
+  return is_valid_time(word, start_time, stop_time);
+}
+
+
+inline uint32_t is_weekday_test_wrapper(char *day)
+{
+  return is_weekday(day);
+}
+
+
+inline Bool check_line_format_test_wrapper(char8_t *line)
+{
+  return check_line_format(line);
+}
+
+
 inline Bool line_parse_test_wrapper(IN char8_t *line)
 {
   return line_parse(line);
 }
+
 
 void user_input_thread_init(void)
 {

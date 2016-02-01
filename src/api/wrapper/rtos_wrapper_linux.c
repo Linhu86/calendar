@@ -1,4 +1,5 @@
-/* rtos wrapper for linux OS. */
+/* rtos_wrapper_linux.c
+ rtos wrapper for linux OS. */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,11 +72,17 @@ Bool ThreadDetach(thread_hdl* thread)
   return ret;
 }
 
-/** Message queue crate API.*/
-Bool QueueCreate( mqd_hdl*          queue,
-                            const char8_t*   name,
-                            uint32_t             msg_size,
-                            uint32_t             msg_count )
+/** Create a queue.
+    @param  queue       Pointer to the queue.
+    @param  name        queue name
+    @param  msg_size    queue size
+    @param  msg_count   max queue num
+    @return             Result value out of  */
+
+Bool QueueCreate( mqd_hdl*         queue,
+                  const char8_t*   name,
+                  uint32_t         msg_size,
+                  uint32_t         msg_count )
 {
   Bool ret;
   mqd_t mq;

@@ -26,4 +26,66 @@ two application will be compiled if everything goes well: ./calendar  and ./unit
 
 
 
+Some Test case:
+
+--------------------------------------
+
+which afternoon to pick up kids
+
+Result:  Monday,  Tuesday,
+
+--------------------------------------
+
+which day to pick up kids
+
+Result:  Monday,  Tuesday,
+
+--------------------------------------
+
+which morning to pick up kids
+
+Result:  No answer found.
+
+--------------------------------------
+
+what to do on monday
+
+Result:  Dentist ,  Pick kids up ,  Evening class ,
+
+--------------------------------------
+
+what time to pick up kids?
+
+Result:  [Monday: 16.00], [Tuesday: 16.00],
+
+--------------------------------------
+
+which day is free
+
+Result:  Saturday,  Sunday,
+
+--------------------------------------
+
+which day is available
+
+Result:  Saturday,  Sunday, 
+
+--------------------------------------
+
+which morning is free
+
+Result:  Tuesday,  Friday,  Saturday,  Sunday, 
+
+--------------------------------------
+
+which afternoon is free
+
+Result:  Wednesday,  Thursday,  Saturday,  Sunday,
+
+--------------------------------------
+
+
+
+
+
 

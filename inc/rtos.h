@@ -89,14 +89,32 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend);
 
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend);
 
+
+
+/** Open a file .
+    @param  file_hdl_ptr  Pointer to the file descriptor.
+    @param  path          File path.
+    @param  mode          File open mode.
+    @return               Result value */
 Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode);
 
-void FsClose(file_hdl file_hdl_ptr);
 
+/** Read bytes from a file.
+    @param  file_hdl_ptr  Pointer to the file descriptor.
+    @param  buffer        read buffer.
+    @param  size          size to be retrieved from file.
+    @return               Result value */
 Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, uint32_t size);
 
+
+/** Get total file size.
+    @param  file_hdl_ptr  Pointer to the file descriptor.
+    @return               file size */
 uint32_t FsGetSize(file_hdl file_hdl_ptr);
 
+/** Close a file .
+    @param  file_hdl_ptr  Pointer to the file descriptor.
+    @return               Result value */
 void FsClose(file_hdl file_hdl_ptr);
 
 #endif

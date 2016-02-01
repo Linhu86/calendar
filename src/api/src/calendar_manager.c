@@ -1,4 +1,4 @@
-/*Calendar_manager.c
+/* Calendar_manager.c
    Calendar manager is the thread which process all input message, it listens the requests from  user input thread, apply
    the pattern match methods and generate proper answer for the user input process thread.
 
@@ -23,6 +23,9 @@ Architecture:         thread                         thread
 #include "types.h"
 #include "helper_func.h"
 
+
+/**************************************** Global variable and data definition ******************************/
+
 typedef enum{
   RETURN_TYPE_WEEKDAY = 0,
   RETURN_TYPE_EVENT,
@@ -46,10 +49,38 @@ int32_t calendar_exit = CALENDAR_RUNNING;
 static char8_t input_buffer[MAX_MSG_QUEUE_SIZE + 1];
 static char8_t answer_buffer[MAX_MSG_QUEUE_SIZE +1];
 
+
+/****************************************** Local function declearation ***************************************/
+static uint32_t check_weekday_pattern(char8_t *message);
+
+static uint32_t check_motivation_pattern(char8_t *message);
+
+static uint32_t check_time_schedule_pattern(char8_t *message);
+
+static uint32_t check_time_available_pattern(char8_t *message);
+
+static uint32_t check_time_occupy_pattern(char8_t *message);
+
+static uint32_t check_daylight_pattern(char8_t *message);
+
+static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday, int32_t range);
+
+static Bool check_weekday_answer_pattern(char8_t *message);
+
+static void process_input_string(IN char8_t *message, OUT char8_t *answer);
+
+static void *calendar_manager_thread_entry(void *param);
+
+/****************************************** local function definition ***************************************/
+
 static uint32_t check_weekday_pattern(char8_t *message)
 {
   uint32_t i = 0;
   uint32_t weekday = -1;
+
+  if(NULL == message)
+    return -1;
+
   for(i = 0; i < 7; i++)
   {
     if(strstr(message, weekday_query_pattern[i]) != NULL)
@@ -65,6 +96,9 @@ static uint32_t check_weekday_pattern(char8_t *message)
 static uint32_t check_motivation_pattern(char8_t *message)
 {
   int i = 0;
+  if(NULL == message)
+    return FAILURE;
+
   for(i = 0; i < 3; i++)
   {
     if(strstr(message, motivation_pattern[i]) != NULL)
@@ -79,6 +113,10 @@ static uint32_t check_motivation_pattern(char8_t *message)
 static uint32_t check_time_schedule_pattern(char8_t *message)
 {
   int i = 0;
+
+  if(NULL == message)
+    return FAILURE;
+
   for(i = 0; i < 2; i++)
   {
     if(strstr(message, time_schedule_pattern[i]) != NULL)
@@ -94,6 +132,10 @@ static uint32_t check_time_schedule_pattern(char8_t *message)
 static uint32_t check_time_available_pattern(char8_t *message)
 {
   int i = 0;
+
+  if(NULL == message)
+    return FAILURE;
+
   for(i = 0; i < 2; i++)
   {
     if(strstr(message, time_available_pattern[i]) != NULL)
@@ -108,6 +150,10 @@ static uint32_t check_time_available_pattern(char8_t *message)
 static uint32_t check_time_occupy_pattern(char8_t *message)
 {
   int i = 0;
+
+  if(NULL == message)
+    return FAILURE;
+
   for(i = 0; i < 2; i++)
   {
     if(strstr(message, time_occupy_pattern[i]) != NULL)
@@ -122,6 +168,9 @@ static uint32_t check_time_occupy_pattern(char8_t *message)
 static uint32_t check_daylight_pattern(char8_t *message)
 {
   uint32_t daylight_range = WHOLE_DAY;
+
+  if(NULL == message)
+    return -1;
 
   if(strstr(message, "morning") != NULL && strstr(message, "afternoon") == NULL && strstr(message, "night") == NULL)
   {
@@ -153,6 +202,10 @@ static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday
 static Bool check_weekday_answer_pattern(char8_t *message)
 {
   int i = 0;
+
+  if(NULL == message)
+    return FAILURE;
+
   for(i = 0; i < 2; i++)
   {
     if(strstr(message, weekday_answer_pattern[i]) != NULL)
@@ -173,6 +226,12 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
   int32_t motivation_pattern_presents = 0;
   int32_t weekday_answer_pattern_presents = 0;
   int32_t check_time_schedule_pattern_presents = 0;
+
+  if(NULL == message || NULL == answer)
+  {
+    CALENDER_DEBUG("Invalid parameters.");
+    return;
+  }
 
   convert_message_to_lower_case(message);
 
@@ -254,6 +313,10 @@ static void *calendar_manager_thread_entry(void *param)
 
   QueueDelete(&mq, QUEUE_NAME);
 }
+
+
+/****************************************** export function definition ***************************************/
+
 
 void calendar_manager_thread_init(void)
 {

@@ -1,8 +1,12 @@
+/* helper_func.c */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 #include "helper_func.h"
+
+/**************************************** Global variable and data definition ******************************/
 
 #define STR_MONDAY     "Monday"
 #define STR_TUESDAY    "Tuesday"
@@ -12,6 +16,13 @@
 #define STR_SATURDAY   "Saturday"
 #define STR_SUNDAY     "Sunday"
 
+/****************************************** Local function declearation ***************************************/
+
+void convert_message_to_lower_case(IN OUT char8_t *message);
+
+void convert_weekday_to_string(IN uint32_t weekday, IN OUT char8_t *weekday_string);
+
+/****************************************** local function definition ***************************************/
 
 void convert_message_to_lower_case(IN OUT char8_t *message)
 {

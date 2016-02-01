@@ -1,3 +1,5 @@
+/* calendar_database.c */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +26,7 @@ Every day owns an event bidirection list sorted by start time.
 
 */
 
+/**************************************** Global variable and data definition ******************************/
 typedef struct dayinfo
 {
   Bool is_free_morning;
@@ -37,8 +40,26 @@ static char8_t event_tmp[EVENT_NAME_LEN];
 
 static char tmp[MAX_MSG_QUEUE_SIZE+1];
 
+
+/****************************************** Local function declearation ***************************************/
+static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start_time, OUT char8_t *event_name);
+
+static Bool time_search_from_db_by_event(IN uint32_t weekday,  IN char8_t *event_name, OUT float32_t *start_time);
+
+static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event);
+
+static Bool retrieve_time_by_dailyrange(IN int32_t range,IN OUT float32_t *start_time, float32_t *stop_time);
+
+static Bool event_pattern_match(char8_t *message, char8_t *event_name);
+
+/**************************************** Global variable and data definition ******************************/
+
+
 static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start_time, OUT char8_t *event_name)
 {
+  if(weekday >WEEKDAY_LAST || NULL == event_name)
+    return FAILURE;
+
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
   while(!ptr)
@@ -58,6 +79,9 @@ static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start
 
 static Bool time_search_from_db_by_event(IN uint32_t weekday,  IN char8_t *event_name, OUT float32_t *start_time)
 {
+  if(weekday >WEEKDAY_LAST || NULL == event_name || NULL == start_time)
+    return FAILURE;
+
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
   while(!ptr)
@@ -79,6 +103,9 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
 {
   event_t *ptr = &calendar_database[weekday].day_info_event;
   int pos = 1;
+
+  if(weekday >WEEKDAY_LAST || NULL == new_event)
+    return;
 
   if(new_event->start_time < 12 ||(new_event->stop_time != 0 && new_event->stop_time < 12))
   {
@@ -124,6 +151,110 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
   }
 }
 
+static Bool retrieve_time_by_dailyrange(IN int32_t range,IN OUT float32_t *start_time, float32_t *stop_time)
+{
+  if(NULL == start_time || NULL == stop_time)
+
+  if(range > DAY_RANGE_LAST)
+  {
+    CALENDER_DEBUG("daily range value error: %d", range);
+    return FAILURE;
+  }
+
+  if(WHOLE_DAY == range)
+  {
+    *start_time = 0.00;
+    *stop_time = 24.00;
+  }
+  else if(MORNING_ONLY == range)
+  {
+    *start_time = 0.00;
+    *stop_time = 11.59;
+  }
+  else if(AFTERNOON_ONLY == range)
+  {
+    *start_time = 12.00;
+    *stop_time = 17.59;
+  }
+  else if(NIGHT_ONLY == range)
+  {
+    *start_time = 18.00;
+    *stop_time = 23.59; 
+  }
+
+  CALENDER_DEBUG("start time %.2f according to the daily range value: %d", *start_time, range);
+
+  return SUCCESS;
+}
+
+static Bool event_pattern_match(char8_t *message, char8_t *event_name)
+{
+  uint32_t matched_byte = 0;
+  uint32_t total_byte = 0;
+  char8_t *ptr_event = NULL;
+  char8_t word[128];
+  char8_t *ptr_word = word;
+  uint32_t counter = 0;
+  uint32_t matched_index = 0;
+
+  if(NULL == message || NULL == event_name)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
+    return FAILURE;
+  }
+
+  memset(event_tmp, '\0', EVENT_NAME_LEN);
+  strncpy(event_tmp, event_name, strlen(event_name));
+
+  convert_message_to_lower_case(event_tmp);
+
+  total_byte = strlen(event_tmp);
+
+  ptr_event = event_tmp;
+
+  CALENDER_DEBUG("start to match [ %s ] with [ %s ]", event_tmp, message);
+
+  while(*ptr_event != '\0')
+  {
+    if(*ptr_event == ' ')
+    {
+      *ptr_word = '\0';
+      CALENDER_DEBUG("Found a new word: %s counter:%d", word, counter);
+      if(strstr(message, word) != NULL)
+      {
+        matched_byte += counter;
+      }
+
+      counter = 0;
+      ptr_word = word;
+    }
+    counter ++;
+    *ptr_word++ = *ptr_event++;
+  }
+
+  *ptr_word = '\0';
+
+  if(strstr(message, word) != NULL)
+  {
+    matched_byte += counter;
+  }
+
+  matched_index = (matched_byte*100)/total_byte;
+
+  CALENDER_DEBUG("Matched bytes: %d, total bytes:%d, matched_index:%d", matched_byte, total_byte, matched_index);
+
+  if(matched_index >= WORD_MATCH_THREADSHOLD)
+  {
+    return SUCCESS;
+  }
+  else
+  {
+    return FAILURE;
+  }
+}
+
+
+/****************************************** export function definition ***************************************/
 
 void calendar_database_init(void)
 {
@@ -186,41 +317,6 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
   return SUCCESS;
 }
 
-static Bool retrieve_time_by_dailyrange(IN int32_t range,IN OUT float32_t *start_time, float32_t *stop_time)
-{
-  if(range > DAY_RANGE_LAST)
-  {
-    CALENDER_DEBUG("daily range value error: %d", range);
-    return FAILURE;
-  }
-
-  if(WHOLE_DAY == range)
-  {
-    *start_time = 0.00;
-    *stop_time = 24.00;
-  }
-  else if(MORNING_ONLY == range)
-  {
-    *start_time = 0.00;
-    *stop_time = 11.59;
-  }
-  else if(AFTERNOON_ONLY == range)
-  {
-    *start_time = 12.00;
-    *stop_time = 17.59;
-  }
-  else if(NIGHT_ONLY == range)
-  {
-    *start_time = 18.00;
-    *stop_time = 23.59; 
-  }
-
-  CALENDER_DEBUG("start time %.2f according to the daily range value: %d", *start_time, range)
-
-  return SUCCESS;
-}
-
-
 void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
 {
   float32_t start_time = 0;
@@ -245,71 +341,6 @@ void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN 
   }
 }
 
-static Bool event_pattern_match(char8_t *message, char8_t *event_name)
-{
-  uint32_t matched_byte = 0;
-  uint32_t total_byte = 0;
-  char8_t *ptr_event = NULL;
-  char8_t word[128];
-  char8_t *ptr_word = word;
-  uint32_t counter = 0;
-  uint32_t matched_index = 0;
-
-  if(!message || !event_name)
-  {
-    CALENDER_DEBUG("Invalide parameters.");
-    return FAILURE;
-  }
-
-  memset(event_tmp, '\0', EVENT_NAME_LEN);
-  strncpy(event_tmp, event_name, strlen(event_name));
-
-  convert_message_to_lower_case(event_tmp);
-
-  total_byte = strlen(event_tmp);
-
-  ptr_event = event_tmp;
-
-  CALENDER_DEBUG("start to match [ %s ] with [ %s ]", event_tmp, message);
-
-  while(*ptr_event != '\0')
-  {
-    if(*ptr_event == ' ')
-    {
-      *ptr_word = '\0';
-      CALENDER_DEBUG("Found a new word: %s counter:%d", word, counter);
-      if(strstr(message, word) != NULL)
-      {
-        matched_byte += counter;
-      }
-
-      counter = 0;
-      ptr_word = word;
-    }
-    counter ++;
-    *ptr_word++ = *ptr_event++;
-  }
-
-  *ptr_word = '\0';
-
-  if(strstr(message, word) != NULL)
-  {
-    matched_byte += counter;
-  }
-
-  matched_index = (matched_byte*100)/total_byte;
-
-  CALENDER_DEBUG("Matched bytes: %d, total bytes:%d, matched_index:%d", matched_byte, total_byte, matched_index);
-
-  if(matched_index >= WORD_MATCH_THREADSHOLD)
-  {
-    return SUCCESS;
-  }
-  else
-  {
-    return FAILURE;
-  }
-}
 
 inline Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_name)
 {
