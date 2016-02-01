@@ -9,14 +9,18 @@
 #include "calendar_manager.h"
 #include "common_include.h"
 #include "calendar_database.h"
+#include "rtos.h"
 #include "types.h"
-
-/* To implement signal error handler. */
 
 extern int32_t calendar_exit;
 
 static void calendar_app_init(void)
 {
+
+#ifdef OS_LINUX
+  signal_handle();
+#endif
+
   calendar_database_init();
 
   parse_file();

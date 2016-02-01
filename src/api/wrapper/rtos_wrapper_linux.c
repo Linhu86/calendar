@@ -8,8 +8,21 @@
 #include <time.h>
 #include <pthread.h>
 #include <mqueue.h>
+#include <signal.h>
 
 #include "rtos.h"
+#include "common_include.h"
+
+extern int32_t calendar_exit;
+
+extern mutex_hdl calendar_lock;
+
+/* signal handler */
+static void signal_handler()
+{
+  calendar_quit();
+}
+
 
 /* Now ThreadCreate API only support to create a thread, but leave the interface to be extended other functionalities
 in the future, e.g thread name, thread stack size, thread priority management. */
@@ -369,4 +382,16 @@ void FsClose(file_hdl file_hdl_ptr)
 
   fclose(file_hdl_ptr);
 }
+
+/* register signal handler should be linux OS dependent*/
+void signal_handle(void)
+{
+  signal(SIGINT,  signal_handler); // Ctrl+C handle
+  signal(SIGTERM, signal_handler); // Terminate handle
+  signal(SIGUSR1, signal_handler); // Interrupt delay
+  signal(SIGSEGV, signal_handler); // Segmentation fault
+  signal(SIGKILL, signal_handler); // kill process
+}
+
+
 
