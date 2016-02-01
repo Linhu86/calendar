@@ -14,6 +14,8 @@
 
 /**************************************** Global variable and data definition ******************************/
 
+#define LINE_SIZE 256
+
 int32_t calendar_exit = CALENDAR_RUNNING;
 
 mutex_hdl calendar_lock;
@@ -23,6 +25,8 @@ static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
 
 static char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
 static char8_t recv_buffer[MAX_MSG_QUEUE_SIZE];
+
+static char8_t line[LINE_SIZE];
 
 /****************************************** Local function declearation ***************************************/
 
@@ -479,10 +483,11 @@ void parse_file(void)
 
   CALENDER_DEBUG("file size is %d\n", size);
 
-  char line[256];
-
   char buffer[size];
+  
   memset(buffer, '\0', size);
+
+  memset(line, '\0', LINE_SIZE);
 
   if(FAILURE == FsRead(fd, buffer, size))
   {
