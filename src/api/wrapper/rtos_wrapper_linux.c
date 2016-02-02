@@ -99,7 +99,7 @@ Bool QueueCreate( mqd_hdl*         queue,
                   uint32_t         msg_size,
                   uint32_t         msg_count )
 {
-  Bool ret;
+  Bool ret = FAILURE;
   mqd_t mq;
   struct mq_attr attr;
 
@@ -158,7 +158,7 @@ void QueueDelete(mqd_hdl* queue, const char8_t *name)
     @return             Result value */
 Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
 {
-  Bool ret;
+  Bool ret = FAILURE;
   ssize_t bytes_write = 0;
   UNUSED(suspend);
 
@@ -191,7 +191,7 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
     @return             Result value */
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
 {
-  Bool ret;
+  Bool ret = FAILURE;
   ssize_t bytes_read = 0;
   UNUSED(suspend);
 
@@ -290,8 +290,8 @@ Bool MutexDestroy(mutex_hdl *lock)
 
 Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode)
 {
-  FILE *fd;
-  Bool ret;
+  FILE *fd = NULL;
+  Bool ret = FAILURE;
   char8_t *open_mode=NULL;
 
   if(NULL == file_hdl_ptr || NULL == path)
@@ -336,7 +336,7 @@ Bool FsOpen(file_hdl *file_hdl_ptr, const char8_t *path, const uint32_t mode)
 
 Bool FsRead(file_hdl file_hdl_ptr, char8_t *buffer, uint32_t size)
 {
-  Bool ret;
+  Bool ret = FAILURE;
 
   if(NULL == file_hdl_ptr || NULL == buffer)
   {
@@ -384,7 +384,7 @@ void FsClose(file_hdl file_hdl_ptr)
 }
 
 /* register signal handler should be linux OS dependent*/
-void signal_handle(void)
+void signal_handler_install(void)
 {
   signal(SIGINT,  signal_handler); // Ctrl+C handle
   signal(SIGTERM, signal_handler); // Terminate handle

@@ -4,9 +4,11 @@
 #include "types.h"
 
 #define THREAD_DEFAULT_STACK_SIZE 4096
+
 #define THREAD_DEFAULT_PRIORITY   10
 
 #define MAX_MSG_QUEUE_SIZE    1024
+
 #define MAX_MSG_QUEUE_NUM     10
 
 typedef enum{
@@ -137,6 +139,10 @@ void FsClose(file_hdl file_hdl_ptr);
 
 /* get system time stamp */
 int32_t get_time_stamp(void);
+
+/* install signal handler */
+void signal_handler_install(void);
+
 
 #endif
 

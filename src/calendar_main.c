@@ -1,4 +1,8 @@
-/* calendar_main.c */
+/* calendar_main.c 
+   calendar application main
+   created by Linhu(ylh1986@hotmail.com)
+   30/01/2016
+*/
 
 #include "user_input_parse.h"
 #include "calendar_manager.h"
@@ -13,7 +17,7 @@ static void calendar_app_init(void)
 {
 
 #ifdef OS_LINUX
-  signal_handle();
+  signal_handler_install();
 #endif
 
   calendar_database_init();
@@ -38,12 +42,13 @@ int32_t main()
 {
   calendar_app_init();
 
-  while(!calendar_exit)
+  while(calendar_exit == CALENDAR_RUNNING)
   {
   
   }
 
   calendar_app_deinit();
+
   return 0;
 }
 

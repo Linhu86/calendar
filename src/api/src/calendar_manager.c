@@ -72,7 +72,9 @@ static uint32_t check_weekday_pattern(char8_t *message)
   uint32_t weekday = -1;
 
   if(NULL == message)
+  {
     return -1;
+  }
 
   for(i = 0; i < 7; i++)
   {
@@ -89,8 +91,11 @@ static uint32_t check_weekday_pattern(char8_t *message)
 static uint32_t check_motivation_pattern(char8_t *message)
 {
   int32_t i = 0;
+
   if(NULL == message)
+  {
     return FAILURE;
+  }
 
   for(i = 0; i < 3; i++)
   {
@@ -100,6 +105,7 @@ static uint32_t check_motivation_pattern(char8_t *message)
         return SUCCESS;
     }
   }
+
   return FAILURE;
 }
 
@@ -108,7 +114,9 @@ static uint32_t check_time_schedule_pattern(char8_t *message)
   int32_t i = 0;
 
   if(NULL == message)
+  {
     return FAILURE;
+  }
 
   for(i = 0; i < 2; i++)
   {
@@ -118,6 +126,7 @@ static uint32_t check_time_schedule_pattern(char8_t *message)
         return SUCCESS;
     }
   }
+
   return FAILURE;
 }
 
@@ -127,7 +136,9 @@ static uint32_t check_time_available_pattern(char8_t *message)
   int32_t i = 0;
 
   if(NULL == message)
+  {
     return FAILURE;
+  }
 
   for(i = 0; i < 2; i++)
   {
@@ -137,6 +148,7 @@ static uint32_t check_time_available_pattern(char8_t *message)
         return SUCCESS;
     }
   }
+
   return FAILURE;
 }
 
@@ -145,7 +157,9 @@ static uint32_t check_time_occupy_pattern(char8_t *message)
   int32_t i = 0;
 
   if(NULL == message)
+  {
     return FAILURE;
+  }
 
   for(i = 0; i < 2; i++)
   {
@@ -155,6 +169,7 @@ static uint32_t check_time_occupy_pattern(char8_t *message)
         return SUCCESS;
     }
   }
+
   return FAILURE;
 }
 
@@ -163,7 +178,9 @@ static uint32_t check_daylight_pattern(char8_t *message)
   uint32_t daylight_range = WHOLE_DAY;
 
   if(NULL == message)
+  {
     return -1;
+  }
 
   if(strstr(message, "morning") != NULL && strstr(message, "afternoon") == NULL && strstr(message, "night") == NULL)
   {
@@ -191,16 +208,19 @@ static Bool check_weekday_answer_pattern(char8_t *message)
   int32_t i = 0;
 
   if(NULL == message)
+  {
     return FAILURE;
+  }
 
   for(i = 0; i < 2; i++)
   {
     if(strstr(message, weekday_answer_pattern[i]) != NULL)
     {
-        CALENDER_DEBUG("Success to find key word to replay a answer with weekday [ %s ] from : [ %s ].", weekday_answer_pattern[i], message);
-        return SUCCESS;
+      CALENDER_DEBUG("Success to find key word to replay a answer with weekday [ %s ] from : [ %s ].", weekday_answer_pattern[i], message);
+      return SUCCESS;
     }
   }
+
   return FAILURE;
 }
 
@@ -235,10 +255,14 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
   check_time_schedule_pattern_presents = check_time_schedule_pattern(message);
 
   if(SUCCESS == check_time_available_pattern(message))
+  {
     avail = AVAIL_FREE;
+  }
 
   if(SUCCESS == check_time_occupy_pattern(message))
+  {
     avail = AVAIL_BUSY;
+  }
 
   if((weekday_query_pattern_presents != -1) && (motivation_pattern_presents == SUCCESS) && (weekday_answer_pattern_presents == FAILURE))
   {
@@ -310,7 +334,7 @@ static void *calendar_manager_thread_entry(void *param)
 void calendar_manager_thread_init(void)
 {
   thread_hdl thread_id;
-  Bool ret;
+  Bool ret = FAILURE;
 
   ret = ThreadCreate( &thread_id,
                       THREAD_CALENDAR_MANAGER_NAME,
@@ -322,11 +346,13 @@ void calendar_manager_thread_init(void)
 
   if(FAILURE == ret)
   {
+    CALENDER_DEBUG("Failed to create thread.");
     calendar_quit();
   }
 
   if(FAILURE == ThreadDetach(&thread_id))
   {
+    CALENDER_DEBUG("Failed to detach thread.");
     calendar_quit();
   }
 }

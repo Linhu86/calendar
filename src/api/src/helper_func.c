@@ -26,23 +26,25 @@ void convert_weekday_to_string(IN uint32_t weekday, IN OUT char8_t *weekday_stri
 
 void convert_message_to_lower_case(IN OUT char8_t *message)
 {
-   char8_t *ptr = message;
-   uint32_t i = 0;
-   for(i = 0; i < strlen(message); i++)
-   {
-      if((*ptr)>='A' && (*ptr)<='Z')
-      {
-         *ptr= (*ptr)+32;
-      }
-      ptr++;
-   }
+  char8_t *ptr = message;
+  uint32_t i = 0;
+  for(i = 0; i < strlen(message); i++)
+  {
+    if((*ptr)>='A' && (*ptr)<='Z')
+    {
+      *ptr= (*ptr)+32;
+    }
+    ptr++;
+  }
 }
 
 
 void convert_weekday_to_string(IN uint32_t weekday, IN OUT char8_t *weekday_string)
 {
   if(NULL == weekday_string || weekday > 7)
+  {
     return;
+  }
 
   switch(weekday)
   {
@@ -78,12 +80,16 @@ void convert_time_format(char8_t *string)
   char8_t *ptr = string;
 
   if(NULL == string)
+  {
     return;
+  }
 
   while(*ptr != '\0')
   {
     if(*ptr == '.')
-        *ptr = ':';
+    {
+      *ptr = ':';
+    }
     ptr++;
   }
 

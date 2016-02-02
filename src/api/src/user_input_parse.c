@@ -20,13 +20,18 @@ int32_t calendar_exit = CALENDAR_RUNNING;
 
 mutex_hdl calendar_lock;
 
+/**************************************** Local variable and data definition ******************************/
+
 static mqd_t mq;
+
 static char8_t input_buffer[MAX_BUFFER_SIZE] = {'\0'};
 
 static char8_t send_buffer[MAX_MSG_QUEUE_SIZE];
+
 static char8_t recv_buffer[MAX_MSG_QUEUE_SIZE];
 
 static char8_t line[LINE_SIZE];
+
 
 /****************************************** Local function declearation ***************************************/
 
@@ -62,6 +67,7 @@ static void dispatch_msg_to_calendar_mgr(char8_t *msg)
   ssize_t bytes_write;
 
   memset(send_buffer, '\0', MAX_MSG_QUEUE_SIZE);
+
   memset(recv_buffer, '\0', MAX_MSG_QUEUE_SIZE);
 
   strncpy(send_buffer, msg, strlen(msg));
@@ -81,13 +87,15 @@ static void dispatch_msg_to_calendar_mgr(char8_t *msg)
   {
     CALENDER_DEBUG("Failed to receive answer from calendar manager, error: %s.", strerror(errno));
   }
+
   CALENDER_DEBUG("Succeed to receive message [ %s ] from calendar manager.", recv_buffer);
 
   if(recv_buffer == NULL || strcmp(recv_buffer, "") == 0)
+  {
     strncpy(recv_buffer, "No answer found.", 17);
+  }
 
   printf("\nResult:  %s\n\n\n", recv_buffer);
-
 }
 
 
@@ -156,7 +164,9 @@ static Bool is_valid_time(char8_t *word, IN OUT float32_t *start_time, IN OUT fl
   }
 
   while(*ptr_word == ' ')
+  {
     ptr_word ++;
+  }
 
   /*parsing start time. */
   for(i = 0; i < 2; i++)
@@ -347,7 +357,9 @@ static Bool line_parse(IN char8_t *line)
    ptr_line = line;
 
    while(*ptr_line == ' ' || *ptr_line == '\n')
-    ptr_line++;
+   {
+     ptr_line++;
+   }
 
    while(*ptr_line!='\0')
    {
@@ -448,23 +460,25 @@ void mutex_lock_deinit()
 void user_input_thread_init(void)
 {
   thread_hdl thread_id;
-  Bool ret;
+  Bool ret = FAILURE;
 
   ret = ThreadCreate( &thread_id,
-                                THREAD_USER_INPUT_PROCESS_NAME,
-                                THREAD_DEFAULT_PRIORITY,
-                                 NULL,
-                                THREAD_DEFAULT_STACK_SIZE,
-                                user_input_process_thread_entry,
-                                (void *)(NULL) );
+                      THREAD_USER_INPUT_PROCESS_NAME,
+                      THREAD_DEFAULT_PRIORITY,
+                      NULL,
+                      THREAD_DEFAULT_STACK_SIZE,
+                      user_input_process_thread_entry,
+                      (void *)(NULL) );
 
   if(FAILURE == ret)
   {
+    CALENDER_DEBUG("Failed to create thread.");
     calendar_quit();
   }
 
   if(FAILURE == ThreadDetach(&thread_id))
   {
+    CALENDER_DEBUG("Failed to detach thread.");
     calendar_quit();
   }
 }
@@ -473,6 +487,9 @@ void parse_file(void)
 {
   file_hdl fd;
   int32_t size;
+  int32_t i = 0;
+  char8_t *ptr;
+  char8_t *pline;
 
   if(FAILURE == FsOpen(&fd, CALENDAR_FILE_NAME, OPEN_MODE_READ_ONLY))
   {
@@ -480,6 +497,12 @@ void parse_file(void)
   }
 
   size =  FsGetSize(fd);
+
+  if(0 == size)
+  {
+    CALENDER_DEBUG("File is empty and quit.");
+    calendar_quit(); 
+  }
 
   CALENDER_DEBUG("file size is %d\n", size);
 
@@ -491,26 +514,25 @@ void parse_file(void)
 
   if(FAILURE == FsRead(fd, buffer, size))
   {
-      calendar_quit();
+    CALENDER_DEBUG("Failed to open file.");
+    calendar_quit();
   }
 
-  char8_t *ptr = buffer;
-  char8_t *pline = line;
-  int32_t i = 0;
+  ptr = buffer;
+  pline = line;
 
   for(i = 0; i < size; i++)
   {
      if(*ptr == '\n')
      {
-        *pline = '\0';
-        pline = line;
-        CALENDER_DEBUG("%s\n", line);
-        if(FAILURE == line_parse(line))
-        {
-           CALENDER_DEBUG("Failed to parse line [%s].", line);
-        }
+       *pline = '\0';
+       pline = line;
+       CALENDER_DEBUG("%s\n", line);
+       if(FAILURE == line_parse(line))
+       {
+         CALENDER_DEBUG("Failed to parse line [%s].", line);
+       }
      }
-
      *pline++ = *ptr++;
   }
 

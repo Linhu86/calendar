@@ -12,6 +12,26 @@
 
 #define WEEKDAY 7
 
+#define EPSINON 0.00001
+
+#define FLOAT_COMP(a, b)  (((a-b >= - EPSINON) && (a-b <= EPSINON)) ? 1 : 0)
+
+/* should implement lock to aviod race condition in multithreading environment.*/ 
+#define calendar_quit(void){ \
+  MutexLock(&calendar_lock);  \
+  calendar_exit = CALENDAR_EXIT; \
+  MutexUnLock(&calendar_lock);    \
+}
+
+#ifdef DEBUG_INFO_ON
+#define CALENDER_DEBUG(fmt, ...) { \
+  printf("[TimeStamp: %d] [Pid:%lu] [Func:%s]: " #fmt "\n", get_time_stamp(), pthread_self(), __func__, ##__VA_ARGS__); \
+}
+#else
+#define CALENDER_DEBUG
+#endif
+
+
 typedef enum{
     MONDAY_IDX=0,
     TUESDAY_IDX,
@@ -38,10 +58,6 @@ typedef enum{
   AVAIL_LAST
 } condition_avail;
 
-
-#define EPSINON 0.00001
-#define FLOAT_COMP(a, b)  (((a-b >= - EPSINON) && (a-b <= EPSINON)) ? 1 : 0)
-
 typedef enum{
   CALENDAR_RUNNING = 0,
   CALENDAR_EXIT = 1
@@ -55,22 +71,6 @@ typedef struct event
   struct event *next;
   struct event *prev;
 } event_t;
-
-
-/* should implement lock to aviod race condition.*/ 
-#define calendar_quit(void){ \
-  MutexLock(&calendar_lock);  \
-  calendar_exit = CALENDAR_EXIT; \
-  MutexUnLock(&calendar_lock);    \
-}
-
-#ifdef DEBUG_INFO_ON
-#define CALENDER_DEBUG(fmt, ...) { \
-  printf("[TimeStamp: %d] [Pid:%lu] [Func:%s]: " #fmt "\n", get_time_stamp(), pthread_self(), __func__, ##__VA_ARGS__); \
-}
-#else
-#define CALENDER_DEBUG
-#endif
 
 
 #endif

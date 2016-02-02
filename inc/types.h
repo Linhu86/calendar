@@ -9,6 +9,7 @@ typedef enum {
 } BOOLEAN;
 
 #define IN
+
 #define OUT
 
 #define UNUSED(x) { x = 0;}

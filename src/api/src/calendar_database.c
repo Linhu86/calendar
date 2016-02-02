@@ -36,6 +36,8 @@ typedef struct dayinfo
 
 dayinfo_t calendar_database[WEEKDAY];
 
+/**************************************** Local variable and data definition ******************************/
+
 static char8_t event_tmp[EVENT_NAME_LEN];
 
 static char8_t tmp[MAX_MSG_QUEUE_SIZE+1];
@@ -237,7 +239,6 @@ static Bool event_pattern_match(char8_t *message, char8_t *event_name)
       {
         matched_byte += counter;
       }
-
       counter = 0;
       ptr_word = word;
     }
@@ -290,16 +291,21 @@ void calendar_database_deinit(void)
   for(i = 0; i < WEEKDAY; i++)
   {
     if(NULL == calendar_database[i].day_info_event.next)
-        continue;
+    {
+      continue;
+    }
     ptr = calendar_database[i].day_info_event.next;
     ptr_tmp = ptr->prev;
     while(ptr)
     {
-       ptr_tmp->next = ptr->next;
-       if(ptr->next) ptr->next->prev = ptr_tmp;
-       CALENDER_DEBUG("Remove event %s from weekday %d.", ptr->event_name, i);
-       free(ptr);
-       ptr = ptr_tmp->next;
+      ptr_tmp->next = ptr->next;
+      if(ptr->next)
+      {
+        ptr->next->prev = ptr_tmp;
+      }
+      CALENDER_DEBUG("Remove event %s from weekday %d.", ptr->event_name, i);
+      free(ptr);
+      ptr = ptr_tmp->next;
     }
     calendar_database[i].day_info_event.next = NULL;
   }
@@ -318,7 +324,7 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
 
   if(NULL==new_event)
   {
-      CALENDER_DEBUG("Malloc failure.");
+    CALENDER_DEBUG("Malloc failure.");
   }
 
   strncpy(new_event->event_name, event_name, strlen(event_name));
