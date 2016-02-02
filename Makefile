@@ -1,19 +1,47 @@
 #
 #  calendar Makefile for linux platform
 #  Created by Linhu
-#  30/01/2016
+#  31/01/2016
 #
 
-TARGET=calendar
-TEST_TARGET=unittest/testapp
+BUILD_OPT=HOST_LINUX
 
-CC=gcc
+#uncomment the following 2 lines to cross-compile calendar for ARM LINARO platform.
+#BUILD_OPT=ARM_LINARO
+#ARM_LINARO_PATH=../gcc-linaro-arm-linux-gnueabihf-4.8-2014.03_linux
+
+TARGET=calendar
+
+#unit test to be executed only in host environment unless you have cross-compiled libcunit1 in target environment.
+ifeq ($(BUILD_OPT), HOST_LINUX)
+	TEST_TARGET=unittest/testapp
+endif
+
+#compiler settings
+ifeq ($(BUILD_OPT), HOST_LINUX)
+	CC=gcc
+else ifeq ($(BUILD_OPT), ARM_LINARO)
+	CC=$(ARM_LINARO_PATH)/bin/arm-linux-gnueabihf-gcc
+else
+	CC=gcc
+endif
+
 CFLAGS=
+INC=
 LDFLAGS=
 SOURCES=
 TEST_SOURCES=
 OBJECT=
-INC=
+
+#Cross compile include and library path settings.
+ifeq ($(BUILD_OPT), ARM_LINARO)
+INC += -I$(ARM_LINARO_PATH)/arm-linux-gnueabihf/libc/usr/include/ \
+       -I$(ARM_LINARO_PATH)/arm-linux-gnueabihf/include/
+
+LDFLAGS += -L$(ARM_LINARO_PATH)/arm-linux-gnueabihf/libc/usr/lib \
+           -L$(ARM_LINARO_PATH)/arm-linux-gnueabihf/libc/lib \
+           -L$(ARM_LINARO_PATH)/arm-linux-gnueabihf/lib
+endif
 
 #flag to control gdb debugging feature
 GDB_DEBUG_ON=-g
@@ -44,8 +72,8 @@ TEST_SOURCES += unittest/src/test.c \
 
 #Include header file
 INC += -Iinc \
-	     -Isrc/api/wrapper \
-	     -Isrc/api/inc
+	   -Isrc/api/wrapper \
+	   -Isrc/api/inc
 
 $(INFO $(OBJECT))
 

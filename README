@@ -1,8 +1,14 @@
-calendar application demo (tested on Ubuntu LTS 14.04 and Debian 8 host environment)
+calendar application demo
+
+test platform:
+
+1. tested on Ubuntu LTS 14.04 and Debian 8 host environment with GNU/GCC tool-chain
+
+2. tested on Raspberry Pi 2 cross-compiled with ARM LINARO tool-chain.
 
 Host build dependency lib required cunit for unit test.
 
-Build step:
+Build step for Host:
 
 1. If you do not want to do the unittest, comment the unit test part in the Makefile (e.g # TEST_TARGET=unittest/testapp ).
 
@@ -25,6 +31,24 @@ two application will be compiled if everything goes well: ./calendar  and ./unit
    or launch the test application ./unittest/testapp for unittest.
 
 
+Build step for ARM cross-compilation.
+
+1. Download ARM LINARO toolchain from http://releases.linaro.org/14.03/components/toolchain/binaries/gcc-linaro-arm-linux-gnueabihf-4.8-2014.03_linux.tar.xz
+
+2. Decompress the toolchain and place it into a folder.
+
+3. Comment the first line in Makefile e.g #BUILD_OPT=HOST_LINUX
+   Uncomment the second line
+   #BUILD_OPT=ARM_LINARO
+   #ARM_LINARO_PATH=../gcc-linaro-arm-linux-gnueabihf-4.8-2014.03_linux
+
+   and replace ARM_LINARO_PATH with your ARM LINARO tool-chain path.
+
+4. build command chmod a+x build.sh && ./build.sh
+
+5. If everything goes well, a executed file calendar cross-compiled for arm platform is created.
+
+6  Launch it on a Raspberry Pi platform or in a virtual machine environment like QEMU.
 
 Some Test case:
 
