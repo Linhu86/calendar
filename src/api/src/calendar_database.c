@@ -58,7 +58,10 @@ static Bool event_pattern_match(char8_t *message, char8_t *event_name);
 static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start_time, OUT char8_t *event_name)
 {
   if(weekday >WEEKDAY_LAST || NULL == event_name)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
     return FAILURE;
+  }
 
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
@@ -80,7 +83,10 @@ static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start
 static Bool time_search_from_db_by_event(IN uint32_t weekday,  IN char8_t *event_name, OUT float32_t *start_time)
 {
   if(weekday >WEEKDAY_LAST || NULL == event_name || NULL == start_time)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
     return FAILURE;
+  }
 
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
@@ -105,7 +111,9 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
   uint32_t pos = 1;
 
   if(weekday >WEEKDAY_LAST || NULL == new_event)
-    return;
+  {
+    CALENDER_DEBUG("Invalide parameters.");
+  }
 
   if(new_event->start_time < 12 ||(new_event->stop_time != 0 && new_event->stop_time < 12))
   {
@@ -154,6 +162,11 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
 static Bool retrieve_time_by_dailyrange(IN int32_t range,IN OUT float32_t *start_time, float32_t *stop_time)
 {
   if(NULL == start_time || NULL == stop_time)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
+    return FAILURE;
+  }
+
 
   if(range > DAY_RANGE_LAST)
   {
@@ -317,15 +330,21 @@ Bool calendar_data_base_event_add(uint32_t weekday, float32_t start_time, float3
   return SUCCESS;
 }
 
-void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
+Bool calendar_database_retrun_event_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN int32_t range)
 {
   float32_t start_time = 0;
   float32_t stop_time = 0;
   if(answer == NULL || range > DAY_RANGE_LAST || weekday >WEEKDAY_LAST)
-    return;
+  {
+    CALENDER_DEBUG("Invalide parameters.");
+    return FAILURE;
+  }
 
   if(FAILURE == retrieve_time_by_dailyrange(range, &start_time, &stop_time))
-    return;
+  {
+    CALENDER_DEBUG("Error: retrieve_time_by_dailyrange.");
+    return FAILURE;
+  }
   
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
@@ -339,6 +358,7 @@ void event_return_all_by_weekday(IN OUT char8_t *answer, IN int32_t weekday, IN 
     }
     ptr = ptr->next;
   }
+  return SUCCESS;
 }
 
 
@@ -348,7 +368,7 @@ inline Bool event_pattern_match_test_wrapper(char8_t *message, char8_t * event_n
 }
 
 
-Bool event_pattern_match_calendar_weekday(char8_t *message, char8_t *answer, int32_t daylight_range)
+Bool calendar_database_return_weekday_time_by_event(char8_t *message, char8_t *answer, int32_t daylight_range)
 {
   uint32_t i = 0;
   uint32_t ret = FAILURE;
@@ -358,10 +378,16 @@ Bool event_pattern_match_calendar_weekday(char8_t *message, char8_t *answer, int
   float32_t stop_time = 0;
 
   if(NULL == message || NULL == answer || daylight_range > DAY_RANGE_LAST)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
     return FAILURE;
+  }
 
   if(FAILURE == retrieve_time_by_dailyrange(daylight_range, &start_time, &stop_time))
+  {
+    CALENDER_DEBUG("Error: retrieve_time_by_dailyrange.");
     return FAILURE;
+  }
 
   for(i = 0; i < WEEKDAY; i++)
   {
@@ -385,14 +411,17 @@ Bool event_pattern_match_calendar_weekday(char8_t *message, char8_t *answer, int
   return SUCCESS;
 }
 
-Bool event_pattern_match_calendar_weekday_avail(char8_t *message, char8_t *answer, int32_t daylight_range, int32_t avail)
+Bool calendar_database_return_avail_by_weekday(char8_t *message, char8_t *answer, int32_t daylight_range, int32_t avail)
 {
   int32_t i = 0;
   int32_t ret = FAILURE;
   char8_t weekday_string[10];
 
   if(NULL == message || NULL == answer || daylight_range > DAY_RANGE_LAST || avail > AVAIL_LAST)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
     return FAILURE;
+  }
 
   if(daylight_range == WHOLE_DAY)
   {
@@ -497,7 +526,7 @@ Bool event_pattern_match_calendar_weekday_avail(char8_t *message, char8_t *answe
   return ret;
 }
 
-Bool event_pattern_match_calendar_time(char8_t *message, char8_t *answer, int32_t daylight_range)
+Bool calendar_database_return_weekday_schedule_by_event(char8_t *message, char8_t *answer, int32_t daylight_range)
 {
   uint32_t i = 0;
   uint32_t ret = FAILURE;
@@ -507,10 +536,16 @@ Bool event_pattern_match_calendar_time(char8_t *message, char8_t *answer, int32_
   float32_t stop_time = 0;
 
   if(NULL == message || NULL == answer || daylight_range > DAY_RANGE_LAST)
+  {
+    CALENDER_DEBUG("Invalide parameters.");
     return FAILURE;
+  }
 
   if(FAILURE == retrieve_time_by_dailyrange(daylight_range, &start_time, &stop_time))
+  {
+    CALENDER_DEBUG("Error: retrieve_time_by_dailyrange");
     return FAILURE;
+  }
 
   memset(tmp, '\0', strlen(tmp));
 

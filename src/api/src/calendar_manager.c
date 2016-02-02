@@ -58,8 +58,6 @@ static uint32_t check_time_occupy_pattern(char8_t *message);
 
 static uint32_t check_daylight_pattern(char8_t *message);
 
-static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday, int32_t range);
-
 static Bool check_weekday_answer_pattern(char8_t *message);
 
 static void process_input_string(IN char8_t *message, OUT char8_t *answer);
@@ -188,12 +186,6 @@ static uint32_t check_daylight_pattern(char8_t *message)
   return daylight_range;
 }
 
-
-static inline void answer_with_event_by_weekday(char8_t *answer, int32_t weekday, int32_t range)
-{
-  event_return_all_by_weekday(answer, weekday, range);
-}
-
 static Bool check_weekday_answer_pattern(char8_t *message)
 {
   int32_t i = 0;
@@ -250,23 +242,25 @@ static void process_input_string(IN char8_t *message, OUT char8_t *answer)
 
   if((weekday_query_pattern_presents != -1) && (motivation_pattern_presents == SUCCESS) && (weekday_answer_pattern_presents == FAILURE))
   {
+    /* In this case return the all the event queried by weekday */
     CALENDER_DEBUG("-------------Entry answer_with_event_by_weekday-----------");
-    answer_with_event_by_weekday(answer, weekday_query_pattern_presents, daylight_range);
+    event_match = calendar_database_retrun_event_by_weekday(answer, weekday_query_pattern_presents, daylight_range);
   }
   else if((weekday_answer_pattern_presents == SUCCESS) && (motivation_pattern_presents == FAILURE) && (weekday_query_pattern_presents == -1) && (avail == AVAIL_DEFAULT))
   {
+    /*In this case return all the time schedule according to the event matched with input string */
     CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday-----------");
-    event_match = event_pattern_match_calendar_weekday(message, answer, daylight_range);
+    event_match = calendar_database_return_weekday_time_by_event(message, answer, daylight_range);
   }
   else if((weekday_answer_pattern_presents == SUCCESS) && (avail != AVAIL_DEFAULT))
   {
     CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_weekday_avail-----------");
-    event_match = event_pattern_match_calendar_weekday_avail(message, answer, daylight_range, avail);
+    event_match = calendar_database_return_avail_by_weekday(message, answer, daylight_range, avail);
   }
   else if((check_time_schedule_pattern_presents == SUCCESS) && (weekday_query_pattern_presents == -1))
   {
     CALENDER_DEBUG("-------------Entry event_pattern_match_calendar_time-----------");
-    event_match = event_pattern_match_calendar_time(message, answer, daylight_range);
+    event_match = calendar_database_return_weekday_schedule_by_event(message, answer, daylight_range);
   }
   
   CALENDER_DEBUG("Prepared answer message [%s] back to user.", answer);
