@@ -27,17 +27,16 @@ typedef void *(*ThreadFn)(void*);
 
 /** Creates a thread
     @param  thread          Pointer to the thread data which must be allocated by caller.
-    @param  name            Name of the thread. Note that in NUCLEUS OS the maximum length is 8 characters.
+    @param  name            Name of the thread.
                             The name is copied to an internal data structure.
-    @param  priority        Thread priority. Applications shall use only values defined in the enum #UComOsThreadPriority
+    @param  priority        Thread priority.
     @param  stack           Pointer to the thread callstack. Memory has to be provided by caller.
-                            Note that the pointer has to be byte aligned according to #UCOM_OS_THREAD_STACK_ALIGNMENT.
     @param  stack_size      Size of the thread callstack in bytes.
                             Note that for ARM RVDS compiler the size has to be a multiple of 8.
     @param  thread_fn       Pointer to the function which is called in the thread context. This function has
-                            to return to end the thread. Thread function declaration shall start with #UCOM_PROCESS
+                            to return to end the thread.
     @param  thread_param    Pointer to user data which is passed to the thread function.
-    @return                 Result value out of #UComCommonReturnCodes or #UComOsReturnCodes.
+    @return                 Result value.
 */
 
 Bool ThreadCreate(thread_hdl* thread,
@@ -55,17 +54,17 @@ Bool ThreadDetach(thread_hdl* thread);
 
 /** Creates a queue.
     @param  queue       Pointer to the queue data which must be allocated by caller.
-    @param  name        Queue unique name. Note that in NUCLEUS OS the maximum length is 8 characters.
+    @param  name        Queue unique name.
     @param  msg_size    Message size for each message sent to the queue in bytes.
     @param  msg_count   Maximum number of messages in the queue.
     @return             Result value
 
 }
 */
-Bool QueueCreate( mqd_hdl*         queue,
+Bool QueueCreate( mqd_hdl*  queue,
                             const char8_t*  name,
-                            uint32_t            msg_size,
-                            uint32_t            msg_count );
+                            uint32_t msg_size,
+                            uint32_t msg_count);
 
 /** Deletes a queue.
     @param  queue       Pointer to the queue.
@@ -86,7 +85,7 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend);
 /** Receives a message from give queue.
     @param  queue       Pointer to the queue.
     @param  message     Message to be received from the queue. Must be provided by caller.
-    @param  suspend     Suspend mode. #UCOM_TRUE means to suspend the current thread until message is retrieved from the queue.
+    @param  suspend     Suspend mode.
     @return             Result value */
 
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend);

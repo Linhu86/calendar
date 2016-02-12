@@ -67,7 +67,7 @@ static Bool event_search_from_db_by_time(IN uint32_t weekday, IN float32_t start
 
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
-  while(!ptr)
+  while(ptr)
   {
     if(FLOAT_COMP(ptr->start_time, start_time))
     {
@@ -92,7 +92,7 @@ static Bool time_search_from_db_by_event(IN uint32_t weekday,  IN char8_t *event
 
   event_t *ptr = calendar_database[weekday].day_info_event.next;
 
-  while(!ptr)
+  while(ptr)
   {
     if(0 == strcmp(event_name, ptr->event_name))
     {
@@ -115,6 +115,7 @@ static void event_insert_into_db(IN uint32_t weekday, IN event_t *new_event)
   if(weekday >WEEKDAY_LAST || NULL == new_event)
   {
     CALENDER_DEBUG("Invalide parameters.");
+    return;
   }
 
   if(new_event->start_time < 12 ||(new_event->stop_time != 0 && new_event->stop_time < 12))

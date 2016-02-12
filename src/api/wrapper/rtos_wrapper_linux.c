@@ -187,7 +187,7 @@ Bool QueueSend(mqd_hdl* queue, const void* message, Bool suspend)
 /** Receives a message from give queue.
     @param  queue       Pointer to the queue.
     @param  message     Message to be received from the queue. Must be provided by caller.
-    @param  suspend     Suspend mode. #UCOM_TRUE means to suspend the current thread until message is retrieved from the queue.
+    @param  suspend     Suspend mode.
     @return             Result value */
 Bool QueueReceive(mqd_hdl* queue, void* message, Bool suspend)
 {

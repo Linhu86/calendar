@@ -2,7 +2,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <rtos.h>
 #include <errno.h>
 
 #include "user_input_parse.h"
@@ -328,82 +327,81 @@ static Bool check_line_format(char8_t *line)
 
 static Bool line_parse(IN char8_t *line)
 {
-   char8_t *ptr_line = NULL;
-   char8_t word[MAX_LINE_SIZE]="";
-   char8_t *ptr_word = word;
-   uint32_t space_num = 0;
-   uint32_t weekday;
-   float32_t start_time = 0;
-   float32_t stop_time = 0;
+  char8_t *ptr_line = NULL;
+  char8_t word[MAX_LINE_SIZE]="";
+  char8_t *ptr_word = word;
+  uint32_t space_num = 0;
+  uint32_t weekday;
+  float32_t start_time = 0;
+  float32_t stop_time = 0;
    
-   if(NULL == line)
-   {
-     CALENDER_DEBUG("Error: String line is NULL.");
-     return FAILURE;
-   }
+  if(NULL == line)
+  {
+    CALENDER_DEBUG("Error: String line is NULL.");
+    return FAILURE;
+  }
 
-   if(strlen(line) > MAX_LINE_SIZE)
-   {
-     CALENDER_DEBUG("Error: Line size exceed maxmium limit, drop line %s", line);
-     return FAILURE;
-   }
+  if(strlen(line) > MAX_LINE_SIZE)
+  {
+    CALENDER_DEBUG("Error: Line size exceed maxmium limit, drop line %s", line);
+    return FAILURE;
+  }
 
-   if(FAILURE == check_line_format(line))
-   {
-      CALENDER_DEBUG("Error: Line format error, do not have 2 space in the line and drop line %s", line);
-      return FAILURE;
-   }
+  if(FAILURE == check_line_format(line))
+  {
+    CALENDER_DEBUG("Error: Line format error, do not have 2 space in the line and drop line %s", line);
+    return FAILURE;
+  }
 
-   ptr_line = line;
+  ptr_line = line;
 
-   while(*ptr_line == ' ' || *ptr_line == '\n')
-   {
-     ptr_line++;
-   }
+  while(*ptr_line == ' ' || *ptr_line == '\n')
+  {
+    ptr_line++;
+  }
 
-   while(*ptr_line!='\0')
-   {
-     if(*ptr_line == ' ' && space_num <= 2)
-     {
-       *(ptr_word) = '\0';
-       space_num++;
+  while(*ptr_line!='\0')
+  {
+    if(*ptr_line == ' ' && space_num <= 2)
+    {
+      *(ptr_word) = '\0';
+      space_num++;
 
-       if(space_num == 1)
-       {
-         weekday = is_weekday(word);
-         if(-1 == weekday)
-         {
-           CALENDER_DEBUG("Error: word format error, first word is not weekday and drop word %s", word);
-           return FAILURE;
-         }
-       }
-       else if(space_num == 2)
-       {
-         if(FAILURE == is_valid_time(word, &start_time, &stop_time))
-         {
-           CALENDER_DEBUG("Error: word format error, second word is not time format and drop word %s", word);
-           return FAILURE;          
-         }
-         space_num++;
-         ptr_line++;
-       }
-       ptr_word = word;
-     }
-     *ptr_word++ = *ptr_line++;
-   }
+      if(space_num == 1)
+      {
+        weekday = is_weekday(word);
+        if(-1 == weekday)
+        {
+          CALENDER_DEBUG("Error: word format error, first word is not weekday and drop word %s", word);
+          return FAILURE;
+        }
+      }
+      else if(space_num == 2)
+      {
+        if(FAILURE == is_valid_time(word, &start_time, &stop_time))
+        {
+          CALENDER_DEBUG("Error: word format error, second word is not time format and drop word %s", word);
+          return FAILURE;          
+        }
+        space_num++;
+        ptr_line++;
+      }
+      ptr_word = word;
+    }
+    *ptr_word++ = *ptr_line++;
+  }
 
-   *ptr_word = '\0';
+  *ptr_word = '\0';
 
-   CALENDER_DEBUG("Add a new event to database: database[%d]: start_time: %.2f  stop_time: %.2f event: %s ", weekday, start_time, stop_time, word);
+  CALENDER_DEBUG("Add a new event to database: database[%d]: start_time: %.2f  stop_time: %.2f event: %s ", weekday, start_time, stop_time, word);
 
-   if(FAILURE == calendar_data_base_event_add(weekday, start_time, stop_time, word))
-   {
-     CALENDER_DEBUG("Failed to add a new event to database");
-     return FAILURE;
-   }
+  if(FAILURE == calendar_data_base_event_add(weekday, start_time, stop_time, word))
+  {
+    CALENDER_DEBUG("Failed to add a new event to database");
+    return FAILURE;
+  }
     
-   return SUCCESS;
-   
+  return SUCCESS; 
 }
 
 
